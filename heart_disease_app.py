@@ -212,26 +212,20 @@ st.markdown("""
     <h1 class="main-header">HeartGuard Pro</h1>
     <p class="sub-header">Advanced Cardiac Risk Assessment System</p>
     
-  
-
-<div style="display: flex; justify-content: center; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap;">
-    <span class="professional-badge" style="background: #e8f5e8; color: #27ae60; border-color: #27ae60;">
-        <span style="font-weight: 700;">✓</span> HIPAA Compliant
-    </span>
-    <span class="professional-badge" style="background: #e3f2fd; color: #1976d2; border-color: #1976d2;">
-        <span style="font-weight: 700;">⚕</span> Clinical Grade
-    </span>
-    <span class="professional-badge" style="background: #f3e5f5; color: #7b1fa2; border-color: #7b1fa2;">
-        <span style="font-weight: 700;">🤖</span> ML Powered
-    </span>
-    <span class="professional-badge" style="background: #fff3e0; color: #f57c00; border-color: #f57c00;">
-        <span style="font-weight: 700;">🔬</span> Research Based
-    </span>
-</div>
-
-</div>
-
-# Clinical Dashboard
+    <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap;">
+        <span class="professional-badge" style="background: #e8f5e8; color: #27ae60; border-color: #27ae60;">
+            <span style="font-weight: 700;">✓</span> HIPAA Compliant
+        </span>
+        <span class="professional-badge" style="background: #e3f2fd; color: #1976d2; border-color: #1976d2;">
+            <span style="font-weight: 700;">⚕</span> Clinical Grade
+        </span>
+        <span class="professional-badge" style="background: #f3e5f5; color: #7b1fa2; border-color: #7b1fa2;">
+            <span style="font-weight: 700;">🤖</span> ML Powered
+        </span>
+        <span class="professional-badge" style="background: #fff3e0; color: #f57c00; border-color: #f57c00;">
+            <span style="font-weight: 700;">🔬</span> Research Based
+        </span>
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -302,6 +296,22 @@ with st.sidebar:
         </div>
         <div style="margin-top: 0.5rem; font-size: 0.8rem; color: #7f8c8d;">
             Last updated: {current_time.strftime('%H:%M:%S')}
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Developer Info in Sidebar
+    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
+    st.markdown("### Developer Info")
+    st.markdown("""
+    <div style="background: white; padding: 1rem; border-radius: 8px; border: 1px solid #e0e0e0;">
+        <div style="text-align: center;">
+            <strong>Om Srivastava</strong><br>
+            <small style="color: #7f8c8d;">
+                <a href="mailto:srivastavaom078@gmail.com" style="color: #3498db; text-decoration: none;">
+                    srivastavaom078@gmail.com
+                </a>
+            </small>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -569,22 +579,31 @@ else:  # System Info
         - **Performance**: Real-time analysis
         - **Support**: Clinical technical team
         """)
- st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
     
-    # ABOUT ME IN SIDEBAR
-    st.markdown("### Developer Info")
+    # Extended About Me Section in System Info Page
+    st.markdown("---")
+    st.markdown("## About the Developer")
+    
     st.markdown("""
-    <div style="background: white; padding: 1rem; border-radius: 8px; border: 1px solid #e0e0e0;">
+    <div class="clinical-card">
         <div style="text-align: center;">
-            <strong>Om Srivastava</strong><br>
-            <small style="color: #7f8c8d;">
-                <a href="mailto:srivastavaom078@gmail.com" style="color: #3498db;">
-                    srivastavaom078@gmail.com
-                </a>
-            </small>
+            <h3 style="color: #2c3e50; margin-bottom: 1rem;">Om Srivastava</h3>
+            <div style="display: flex; justify-content: center; gap: 2rem; margin: 2rem 0;">
+                <div style="text-align: center;">
+                    <div style="font-size: 2rem; color: #3498db; margin-bottom: 0.5rem;">📧</div>
+                    <a href="mailto:srivastavaom078@gmail.com" style="color: #3498db; text-decoration: none;">
+                        srivastavaom078@gmail.com
+                    </a>
+                </div>
+            </div>
+            <p style="color: #7f8c8d; line-height: 1.6;">
+                Data Scientist and Machine Learning Engineer passionate about healthcare technology 
+                and building AI solutions that make a real-world impact in clinical decision support.
+            </p>
         </div>
     </div>
     """, unsafe_allow_html=True)
+
 # Professional Footer
 st.markdown("---")
 st.markdown(f"""

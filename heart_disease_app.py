@@ -11,28 +11,7 @@ import plotly.express as px
 from datetime import datetime
 
 # Set page configuration
-st.set_page_config(
-    page_title="HeartGuard Pro - Cardiac Risk Assessment",
-    page_icon="🏥",
-    layout="wide",
-    initial_sidebar_state="expanded",
-    menu_items={
-        'Get Help': 'https://github.com/IronLad123/heart-disease-prediction-app',
-        'Report a bug': "https://github.com/IronLad123/heart-disease-prediction-app/issues",
-        'About': """
-        ## HeartGuard Pro v2.0
-        
-        **Advanced Cardiac Risk Assessment System**
-        
-        • Machine Learning Powered
-        • Clinical Research Standards
-        • Real-time Risk Analysis
-        • HIPAA Compliant Design
-        """
-    }
-)
-
-# Professional CSS for clean, medical styling
+# Professional CSS with the missing professional-badge class
 st.markdown("""
 <style>
     .main-header {
@@ -51,6 +30,21 @@ st.markdown("""
         margin-bottom: 3rem;
         font-weight: 300;
         font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+    .professional-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.6rem 1.2rem;
+        margin: 0.25rem;
+        border-radius: 25px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        background: white;
+        color: #2c3e50;
+        border: 1.5px solid #e0e0e0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
     }
     .clinical-card {
         background: white;
@@ -86,63 +80,33 @@ st.markdown("""
         border-top: 4px solid #3498db;
         transition: all 0.3s ease;
     }
-    .metric-panel:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-    }
-    .nav-button {
-        background: white;
-        color: #2c3e50;
-        border: 1px solid #e0e0e0;
-        padding: 1rem;
-        border-radius: 8px;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        width: 100%;
-        text-align: left;
-        margin: 0.25rem 0;
-    }
-    .nav-button:hover {
-        background: #f8f9fa;
-        border-color: #3498db;
-        transform: translateX(4px);
-    }
-    .nav-button.active {
-        background: #3498db;
-        color: white;
-        border-color: #3498db;
-    }
-    .section-divider {
-        height: 1px;
-        background: linear-gradient(90deg, transparent, #bdc3c7, transparent);
-        margin: 2rem 0;
-    }
-    .status-indicator {
-        display: inline-block;
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        margin-right: 8px;
-    }
-    .status-online {
-        background: #27ae60;
-    }
-    .status-warning {
-        background: #f39c12;
-    }
-    .professional-badge {
-        display: inline-block;
-        padding: 0.4rem 1rem;
-        margin: 0.25rem;
-        border-radius: 20px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        background: #ecf0f1;
-        color: #2c3e50;
-        border: 1px solid #bdc3c7;
-    }
 </style>
 """, unsafe_allow_html=True)
+
+# Professional Header with working badges
+st.markdown("""
+<div style="text-align: center; padding: 2rem 0; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); 
+            border-radius: 0 0 20px 20px; margin-bottom: 2rem;">
+    <h1 class="main-header">HeartGuard Pro</h1>
+    <p class="sub-header">Advanced Cardiac Risk Assessment System</p>
+    
+    <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap;">
+        <span class="professional-badge" style="background: #e8f5e8; color: #27ae60; border-color: #27ae60;">
+            <span style="font-weight: 700;">✓</span> HIPAA Compliant
+        </span>
+        <span class="professional-badge" style="background: #e3f2fd; color: #1976d2; border-color: #1976d2;">
+            <span style="font-weight: 700;">⚕</span> Clinical Grade
+        </span>
+        <span class="professional-badge" style="background: #f3e5f5; color: #7b1fa2; border-color: #7b1fa2;">
+            <span style="font-weight: 700;">🤖</span> ML Powered
+        </span>
+        <span class="professional-badge" style="background: #fff3e0; color: #f57c00; border-color: #f57c00;">
+            <span style="font-weight: 700;">🔬</span> Research Based
+        </span>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
 
 # Professional Header
 st.markdown("""

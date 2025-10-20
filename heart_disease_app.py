@@ -569,7 +569,22 @@ else:  # System Info
         - **Performance**: Real-time analysis
         - **Support**: Clinical technical team
         """)
-
+ st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
+    
+    # ABOUT ME IN SIDEBAR
+    st.markdown("### Developer Info")
+    st.markdown("""
+    <div style="background: white; padding: 1rem; border-radius: 8px; border: 1px solid #e0e0e0;">
+        <div style="text-align: center;">
+            <strong>Om Srivastava</strong><br>
+            <small style="color: #7f8c8d;">
+                <a href="mailto:srivastavaom078@gmail.com" style="color: #3498db;">
+                    srivastavaom078@gmail.com
+                </a>
+            </small>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 # Professional Footer
 st.markdown("---")
 st.markdown(f"""

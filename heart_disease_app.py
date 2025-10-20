@@ -12,8 +12,8 @@ from datetime import datetime
 
 # Set page configuration
 st.set_page_config(
-    page_title="HeartGuard Pro - Cardiac Risk Assessment",
-    page_icon="❤️",
+   page_title="HeartGuard Pro - Cardiac Risk Assessment",
+    page_icon="🏥",  # Hospital building - very professional
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
@@ -714,44 +714,248 @@ def main():
     if model is None:
         return
     
-    # Enhanced sidebar with animations
-    with st.sidebar:
-        st.markdown("### 🎯 Navigation")
-        app_mode = st.radio(
-            "Choose Mode",
-            ["🏠 Dashboard", "🩺 Patient Assessment", "📊 Analytics", "👨‍💻 Developer"],
-            index=0
-        )
-        
-        st.markdown("---")
-        st.markdown("### ⚡ Live Metrics")
-        
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown("""
-            <div class="metric-card">
-                <h3>🎯 88.5%</h3>
-                <p>Accuracy</p>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        with col2:
-            st.markdown("""
-            <div class="metric-card">
-                <h3>🚨 100%</h3>
-                <p>Recall</p>
-            </div>
-            """, unsafe_allow_html=True)
+    # Add this CSS for animations and enhanced styling
+st.markdown("""
+<style>
+    /* Enhanced sidebar animations */
+    .sidebar-content {
+        animation: fadeInUp 0.8s ease-out;
+    }
     
-    if app_mode == "🏠 Dashboard":
-        show_dashboard()
-    elif app_mode == "🩺 Patient Assessment":
-        show_interactive_assessment(model, scaler)
-    elif app_mode == "📊 Analytics":
-        show_analytics()
-    else:
-        show_developer_profile()
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Pulse animation for live metrics */
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    .pulse-metric {
+        animation: pulse 2s infinite;
+    }
+    
+    /* Enhanced metric cards with hover effects */
+    .metric-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.2rem;
+        border-radius: 15px;
+        text-align: center;
+        margin: 0.5rem 0;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+    
+    .metric-card h3 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+    
+    .metric-card p {
+        margin: 0.5rem 0 0 0;
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+    
+    /* Enhanced radio buttons with animations */
+    .stRadio [role="radiogroup"] {
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        padding: 1rem;
+        border-radius: 15px;
+        border: 2px solid #e0e0e0;
+        transition: all 0.3s ease;
+    }
+    
+    .stRadio [role="radiogroup"]:hover {
+        border-color: #667eea;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+    }
+    
+    .stRadio [role="radio"] {
+        padding: 1rem;
+        margin: 0.5rem 0;
+        border-radius: 10px;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .stRadio [role="radio"]:hover {
+        background: #f0f2f6;
+        transform: translateX(5px);
+    }
+    
+    .stRadio [role="radio"][aria-checked="true"] {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-color: #667eea;
+        transform: translateX(10px);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    /* Sidebar header animation */
+    .sidebar-header {
+        animation: slideInLeft 0.6s ease-out;
+    }
+    
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    /* Divider styling */
+    .stHorizontalBlock {
+        background: linear-gradient(90deg, transparent, #667eea, transparent);
+        height: 2px;
+        margin: 1.5rem 0;
+    }
+</style>
+""", unsafe_allow_html=True)
 
+# Enhanced sidebar with animations
+with st.sidebar:
+    st.markdown("""
+    <div class="sidebar-header">
+        <div style="text-align: center; padding: 1rem 0; margin-bottom: 1rem;">
+            <div style="font-size: 2.5rem; margin-bottom: 0.5rem; animation: bounce 2s infinite;">❤️</div>
+            <h2 style="color: #667eea; margin: 0; font-weight: 800; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">HeartGuard Pro</h2>
+            <p style="color: #666; font-size: 0.8rem; margin: 0.2rem 0 0 0;">Clinical AI Platform</p>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("### 🧭 Navigation")
+    app_mode = st.radio(
+        "Choose Mode",
+        ["🏠 Dashboard", "🩺 Patient Assessment", "📊 Analytics", "👨‍💻 Developer"],
+        index=0,
+        label_visibility="collapsed"
+    )
+    
+    st.markdown("---")
+    
+    # Animated Live Metrics Section
+    st.markdown("### ⚡ Live Metrics")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("""
+        <div class="metric-card pulse-metric">
+            <h3>🎯 88.5%</h3>
+            <p>Accuracy</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div class="metric-card pulse-metric">
+            <h3>🚨 100%</h3>
+            <p>Recall</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Additional Metrics
+    col3, col4 = st.columns(2)
+    with col3:
+        st.markdown("""
+        <div class="metric-card">
+            <h3>🛡️ 85.8%</h3>
+            <p>Specificity</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col4:
+        st.markdown("""
+        <div class="metric-card">
+            <h3>⚡ 0.91</h3>
+            <p>AUC Score</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown("---")
+    
+    # Quick Status
+    st.markdown("### 🟢 System Status")
+    status_col1, status_col2 = st.columns(2)
+    with status_col1:
+        st.markdown("""
+        <div style="text-align: center; padding: 0.5rem; background: #e8f5e8; border-radius: 10px;">
+            <div style="font-size: 1.2rem;">🟢</div>
+            <div style="font-size: 0.7rem; color: #2e7d32;">Online</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with status_col2:
+        st.markdown("""
+        <div style="text-align: center; padding: 0.5rem; background: #fff3e0; border-radius: 10px;">
+            <div style="font-size: 1.2rem;">🤖</div>
+            <div style="font-size: 0.7rem; color: #ef6c00;">AI Active</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown("---")
+    
+    # Footer with enhanced styling
+    st.markdown("""
+    <div style="text-align: center; padding: 1rem; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 10px;">
+        <div style="font-size: 0.7rem; color: #666; margin-bottom: 0.5rem;">
+            🔒 HIPAA Compliant • 🏥 Clinical Grade
+        </div>
+        <div style="font-size: 0.6rem; color: #888;">
+            v2.1 • HeartGuard Pro
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+# Main content routing with fade animation
+st.markdown("""
+<style>
+    .main-content {
+        animation: fadeIn 0.5s ease-in;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+</style>
+<div class="main-content">
+""", unsafe_allow_html=True)
+
+if app_mode == "🏠 Dashboard":
+    show_dashboard()
+elif app_mode == "🩺 Patient Assessment":
+    show_interactive_assessment(model, scaler)
+elif app_mode == "📊 Analytics":
+    show_analytics()
+else:
+    show_developer_profile()
+
+st.markdown("</div>", unsafe_allow_html=True)
 def show_dashboard():
     """Show interactive dashboard"""
     st.markdown("## 📈 Interactive Health Dashboard")

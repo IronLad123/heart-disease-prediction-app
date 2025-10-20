@@ -151,11 +151,19 @@ st.markdown("""
     <h1 class="main-header">HeartGuard Pro</h1>
     <p class="sub-header">Advanced Cardiac Risk Assessment System</p>
     
-    <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 1rem;">
-        <span class="professional-badge">HIPAA Compliant</span>
-        <span class="professional-badge">Clinical Grade</span>
-        <span class="professional-badge">ML Powered</span>
-        <span class="professional-badge">Research Based</span>
+    <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap;">
+        <span class="professional-badge" style="background: #e8f5e8; color: #27ae60; border-color: #27ae60;">
+            <span style="font-weight: 700;">✓</span> HIPAA Compliant
+        </span>
+        <span class="professional-badge" style="background: #e3f2fd; color: #1976d2; border-color: #1976d2;">
+            <span style="font-weight: 700;">⚕</span> Clinical Grade
+        </span>
+        <span class="professional-badge" style="background: #f3e5f5; color: #7b1fa2; border-color: #7b1fa2;">
+            <span style="font-weight: 700;">🤖</span> ML Powered
+        </span>
+        <span class="professional-badge" style="background: #fff3e0; color: #f57c00; border-color: #f57c00;">
+            <span style="font-weight: 700;">🔬</span> Research Based
+        </span>
     </div>
 </div>
 """, unsafe_allow_html=True)

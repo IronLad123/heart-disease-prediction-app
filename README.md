@@ -6,4 +6,5 @@ AI app for heart disease risk assessment.
 Om Srivastava
 Email: srivastavaom078@gmail.com
 ## 🌐 Live Demo
-**Live App:** https://heart-disease-prediction-app.streamlit.app
+**Live App:** 
+https://omheart-disease-prediction-app-c9c95zynkbx7ott7vvtmdum.streamlit.app

@@ -9,7 +9,21 @@ import time
 import plotly.graph_objects as go
 import plotly.express as px
 from datetime import datetime
-
+.professional-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    margin: 0.25rem;
+    border-radius: 25px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    background: white;
+    color: #2c3e50;
+    border: 1.5px solid #e0e0e0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+}
 # Set page configuration
 # Professional CSS with the missing professional-badge class
 st.markdown("""

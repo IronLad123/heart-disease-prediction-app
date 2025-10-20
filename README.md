@@ -4,4 +4,4 @@ AI app for heart disease risk assessment.
 
 ## Developer
 Om Srivastava
-Email: om.srivastava@example.com
+Email: srivastavaom078@gmail.com

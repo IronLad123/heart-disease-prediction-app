@@ -347,7 +347,6 @@ with tab1:
                 - Maintain regular physical activity
                 - Balanced diet recommended
                 """)
-
 with tab2:
     st.markdown("## 📊 Clinical Analytics Dashboard")
     
@@ -431,16 +430,16 @@ with tab2:
         )
         
         fig_pie.update_traces(
-        textposition='inside', 
-        textinfo='percent+label',
-        marker=dict(line=dict(color='white', width=2))
+            textposition='inside', 
+            textinfo='percent+label',
+            marker=dict(line=dict(color='white', width=2))
         )
         
         fig_pie.update_layout(
-        showlegend=False,
-        height=400,
-        margin=dict(t=0, b=0, l=0, r=0),
-        annotations=[dict(text='Risk<br>Breakdown', x=0.5, y=0.5, font_size=14, showarrow=False)]
+            showlegend=False,
+            height=400,
+            margin=dict(t=0, b=0, l=0, r=0),
+            annotations=[dict(text='Risk<br>Breakdown', x=0.5, y=0.5, font_size=14, showarrow=False)]
         )
         
         st.plotly_chart(fig_pie, use_container_width=True)
@@ -470,49 +469,49 @@ with tab2:
         
         age_data = np.random.randint(30, 80, n_points)
         risk_data = np.clip(
-        age_data * 0.8 + np.random.normal(0, 15, n_points) + 
-        (age_data - 55)**2 * 0.05, 10, 95
+            age_data * 0.8 + np.random.normal(0, 15, n_points) + 
+            (age_data - 55)**2 * 0.05, 10, 95
         )
         
         risk_category = []
         for risk in risk_data:
-        if risk < 30:
-            risk_category.append('Low Risk')
-        elif risk < 70:
-            risk_category.append('Medium Risk') 
-        else:
-            risk_category.append('High Risk')
+            if risk < 30:
+                risk_category.append('Low Risk')
+            elif risk < 70:
+                risk_category.append('Medium Risk') 
+            else:
+                risk_category.append('High Risk')
         
         scatter_df = pd.DataFrame({
-        'Age': age_data,
-        'Risk Score': risk_data,
-        'Risk Category': risk_category
+            'Age': age_data,
+            'Risk Score': risk_data,
+            'Risk Category': risk_category
         })
         
         fig_scatter = px.scatter(
-        scatter_df, 
-        x='Age', 
-        y='Risk Score',
-        color='Risk Category',
-        color_discrete_map={
-            'Low Risk': '#4CAF50',
-            'Medium Risk': '#FFA726',
-            'High Risk': '#FF5252'
-        },
-        size_max=15,
-        opacity=0.7,
-        trendline="lowess"
+            scatter_df, 
+            x='Age', 
+            y='Risk Score',
+            color='Risk Category',
+            color_discrete_map={
+                'Low Risk': '#4CAF50',
+                'Medium Risk': '#FFA726',
+                'High Risk': '#FF5252'
+            },
+            size_max=15,
+            opacity=0.7,
+            trendline="lowess"
         )
         
         fig_scatter.update_layout(
-        height=400,
-        xaxis_title="Patient Age (years)",
-        yaxis_title="Cardiac Risk Score (%)",
-        showlegend=True
+            height=400,
+            xaxis_title="Patient Age (years)",
+            yaxis_title="Cardiac Risk Score (%)",
+            showlegend=True
         )
         
         fig_scatter.update_traces(
-        marker=dict(size=8, line=dict(width=1, color='white'))
+            marker=dict(size=8, line=dict(width=1, color='white'))
         )
         
         st.plotly_chart(fig_scatter, use_container_width=True)
@@ -545,23 +544,23 @@ with tab2:
         sensitivity = [87.5, 88.2, 88.9, 89.5, 89.3, 89.5]
         
         perf_df = pd.DataFrame({
-        'Month': months,
-        'Accuracy': accuracy,
-        'Sensitivity': sensitivity
+            'Month': months,
+            'Accuracy': accuracy,
+            'Sensitivity': sensitivity
         })
         
         fig_perf = px.line(
-        perf_df, 
-        x='Month', 
-        y=['Accuracy', 'Sensitivity'],
-        title="Model Performance Trend",
-        markers=True
+            perf_df, 
+            x='Month', 
+            y=['Accuracy', 'Sensitivity'],
+            title="Model Performance Trend",
+            markers=True
         )
         
         fig_perf.update_layout(
-        height=300,
-        yaxis_title="Percentage (%)",
-        yaxis_range=[80, 95]
+            height=300,
+            yaxis_title="Percentage (%)",
+            yaxis_range=[80, 95]
         )
         
         fig_perf.update_traces(line=dict(width=3))
@@ -575,19 +574,19 @@ with tab2:
         prevalence = [68, 55, 32, 28, 45]
         
         fig_bar = px.bar(
-        x=prevalence,
-        y=factors,
-        orientation='h',
-        title="Common Risk Factors in Population",
-        color=prevalence,
-        color_continuous_scale='Reds'
+            x=prevalence,
+            y=factors,
+            orientation='h',
+            title="Common Risk Factors in Population",
+            color=prevalence,
+            color_continuous_scale='Reds'
         )
         
         fig_bar.update_layout(
-        height=300,
-        xaxis_title="Prevalence (%)",
-        yaxis_title="",
-        showlegend=False
+            height=300,
+            xaxis_title="Prevalence (%)",
+            yaxis_title="",
+            showlegend=False
         )
         
         st.plotly_chart(fig_bar, use_container_width=True)

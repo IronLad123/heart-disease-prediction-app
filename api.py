@@ -11,6 +11,10 @@ import joblib
 import json
 import warnings
 from typing import Optional
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, VotingClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.linear_model import LogisticRegression
 
 warnings.filterwarnings('ignore')
 
@@ -20,7 +24,7 @@ app = FastAPI(
     version="3.0.0"
 )
 
-# Load ML Suite
+# Load ML Suite with dynamic fallback
 try:
     with open('models_metadata.json', 'r') as f:
         metadata = json.load(f)
@@ -31,8 +35,45 @@ try:
         models[m_name] = joblib.load(info['filename'])
     models_loaded = True
 except Exception as e:
-    models_loaded = False
-    load_error = str(e)
+    try:
+        url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/processed.cleveland.data'
+        column_names = ['age', 'sex', 'cp', 'trestbps', 'chol', 'fbs', 'restecg', 'thalach', 'exang', 'oldpeak', 'slope', 'ca', 'thal', 'target']
+        try:
+            df = pd.read_csv(url, names=column_names, na_values='?')
+        except Exception:
+            df = pd.read_csv('Heart Disease Data/processed.cleveland.data', names=column_names, na_values='?')
+            
+        df = df.dropna().reset_index(drop=True)
+        df['target'] = (df['target'] > 0).astype(int)
+        
+        X = df.drop('target', axis=1)
+        y = df['target']
+        
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X)
+        
+        models = {
+            'Random Forest': RandomForestClassifier(n_estimators=100, random_state=42).fit(X_scaled, y),
+            'Gradient Boosting': GradientBoostingClassifier(n_estimators=100, random_state=42).fit(X_scaled, y),
+            'K-Nearest Neighbors': KNeighborsClassifier(n_neighbors=7).fit(X_scaled, y),
+            'Logistic Regression': LogisticRegression(random_state=42).fit(X_scaled, y)
+        }
+        
+        ensemble = VotingClassifier(
+            estimators=[
+                ('rf', models['Random Forest']),
+                ('gb', models['Gradient Boosting']),
+                ('knn', models['K-Nearest Neighbors']),
+                ('lr', models['Logistic Regression'])
+            ],
+            voting='soft'
+        ).fit(X_scaled, y)
+        
+        models['Voting Ensemble'] = ensemble
+        models_loaded = True
+    except Exception as ex:
+        models_loaded = False
+        load_error = str(ex)
 
 class PatientData(BaseModel):
     age: int = Field(..., ge=18, le=120, description="Age in years")

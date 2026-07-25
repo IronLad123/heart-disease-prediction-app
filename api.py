@@ -1,33 +1,37 @@
 """
-HeartGuard Pro - Production REST API Service
-FastAPI backend for integrating Heart Disease Risk Prediction into EHR / web systems.
+HeartGuard AI - Next-Gen Multi-Model REST API Service
+FastAPI backend for querying multi-model ensemble suite predictions programmatically.
 """
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 import pandas as pd
 import numpy as np
 import joblib
 import json
 import warnings
+from typing import Optional
 
 warnings.filterwarnings('ignore')
 
 app = FastAPI(
-    title="HeartGuard Pro API",
-    description="Clinical ML REST API for Cardiac Risk Prediction",
-    version="2.0.0"
+    title="HeartGuard AI Multi-Model REST API",
+    description="Production ML API serving 5 Multi-Model Cardiac Classifiers (Random Forest, Gradient Boosting, KNN, Logistic Regression, Voting Ensemble)",
+    version="3.0.0"
 )
 
-# Load ML artifacts
+# Load ML Suite
 try:
-    model = joblib.load('heart_disease_knn_model.pkl')
-    scaler = joblib.load('scaler.pkl')
-    with open('model_metadata.json', 'r') as f:
+    with open('models_metadata.json', 'r') as f:
         metadata = json.load(f)
-    model_loaded = True
+    scaler = joblib.load('scaler.pkl')
+    
+    models = {}
+    for m_name, info in metadata['models'].items():
+        models[m_name] = joblib.load(info['filename'])
+    models_loaded = True
 except Exception as e:
-    model_loaded = False
+    models_loaded = False
     load_error = str(e)
 
 class PatientData(BaseModel):
@@ -49,31 +53,40 @@ class PatientData(BaseModel):
 def read_root():
     return {
         "status": "online",
-        "service": "HeartGuard Pro API",
-        "version": "2.0.0",
-        "model_loaded": model_loaded
+        "service": "HeartGuard AI Multi-Model REST API",
+        "version": "3.0.0",
+        "available_models": list(models.keys()) if models_loaded else [],
+        "models_loaded": models_loaded
     }
 
 @app.get("/health")
 def health_check():
-    if not model_loaded:
-        raise HTTPException(status_code=500, detail=f"Model failed to load: {load_error}")
-    return {"status": "healthy", "accuracy": metadata.get("accuracy", 0.885)}
+    if not models_loaded:
+        raise HTTPException(status_code=500, detail=f"Models failed to load: {load_error}")
+    return {"status": "healthy", "available_models": list(models.keys())}
 
 @app.post("/predict")
-def predict_risk(patient: PatientData):
-    if not model_loaded:
-        raise HTTPException(status_code=500, detail="ML model is not available")
+def predict_risk(
+    patient: PatientData, 
+    model_name: Optional[str] = Query("Voting Ensemble", description="ML Model: 'Random Forest', 'Gradient Boosting', 'K-Nearest Neighbors', 'Logistic Regression', 'Voting Ensemble'")
+):
+    if not models_loaded:
+        raise HTTPException(status_code=500, detail="ML model suite is not available")
     
+    if model_name not in models:
+        raise HTTPException(status_code=400, detail=f"Invalid model_name '{model_name}'. Choose from: {list(models.keys())}")
+
+    target_model = models[model_name]
     input_df = pd.DataFrame([patient.dict()])
     scaled_df = scaler.transform(input_df)
     
-    probability = float(model.predict_proba(scaled_df)[0][1] * 100)
-    prediction = int(model.predict(scaled_df)[0])
+    probability = float(target_model.predict_proba(scaled_df)[0][1] * 100)
+    prediction = int(target_model.predict(scaled_df)[0])
     
     risk_level = "HIGH RISK" if probability >= 70 else "MODERATE RISK" if probability >= 35 else "LOW RISK"
     
     return {
+        "model_used": model_name,
         "heart_disease_probability": round(probability, 2),
         "prediction": prediction,
         "prediction_label": "Heart Disease Present" if prediction == 1 else "No Heart Disease Detected",

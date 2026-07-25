@@ -17,13 +17,13 @@ warnings.filterwarnings('ignore')
 
 # Page Configuration
 st.set_page_config(
-    page_title="HeartGuard AI | Next-Gen Cardiac Risk Intelligence Platform",
+    page_title="HeartGuard AI | Clinical Cardiac Risk Intelligence Platform",
     page_icon="❤️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom Design Tokens & Styling
+# Custom High-End Aesthetics & Glassmorphism Design Tokens
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
@@ -32,96 +32,142 @@ st.markdown("""
         font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
     }
 
-    @keyframes gradient-shift {
+    /* Keyframe Animations */
+    @keyframes ecg-dash {
+        to {
+            stroke-dashoffset: -1000;
+        }
+    }
+    
+    @keyframes pulse-ring {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+        70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+
+    @keyframes gradient-bg {
         0% { background-position: 0% 50%; }
         50% { background-position: 100% 50%; }
         100% { background-position: 0% 50%; }
     }
 
-    .hero-container {
-        background: linear-gradient(-45deg, #0f172a, #1e1b4b, #0f766e, #0369a1);
+    /* Hero Banner with Animated Gradient */
+    .hero-banner {
+        background: linear-gradient(-45deg, #090d16, #0f172a, #1e1b4b, #0f766e, #0284c7);
         background-size: 400% 400%;
-        animation: gradient-shift 12s ease infinite;
-        padding: 2.8rem 2rem;
-        border-radius: 24px;
+        animation: gradient-bg 15s ease infinite;
+        padding: 3rem 2rem;
+        border-radius: 28px;
         color: white;
         text-align: center;
         margin-bottom: 2rem;
-        box-shadow: 0 20px 30px -10px rgba(15, 23, 42, 0.4);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        position: relative;
+        overflow: hidden;
     }
-    .hero-title {
-        font-size: 3.2rem;
+
+    .hero-title-text {
+        font-size: 3.5rem;
         font-weight: 800;
-        letter-spacing: -0.03em;
-        margin-bottom: 0.3rem;
-        background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+        letter-spacing: -0.04em;
+        margin-bottom: 0.4rem;
+        background: linear-gradient(135deg, #ffffff 0%, #38bdf8 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
-    .hero-sub {
-        font-size: 1.15rem;
+
+    .hero-sub-text {
+        font-size: 1.2rem;
         color: #94a3b8;
-        max-width: 720px;
-        margin: 0 auto 1.5rem auto;
+        max-width: 750px;
+        margin: 0 auto 1.6rem auto;
         font-weight: 400;
     }
-    .hero-badges {
-        display: flex;
-        justify-content: center;
-        gap: 0.8rem;
-        flex-wrap: wrap;
-    }
-    .hero-badge {
-        padding: 0.45rem 1.2rem;
+
+    .badge-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1.25rem;
         border-radius: 30px;
         font-size: 0.85rem;
         font-weight: 600;
-        backdrop-filter: blur(10px);
+        backdrop-filter: blur(12px);
     }
-    .b-teal { background: rgba(20, 184, 166, 0.25); color: #2dd4bf; border: 1px solid rgba(45, 212, 191, 0.4); }
-    .b-blue { background: rgba(56, 189, 248, 0.25); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); }
-    .b-purple { background: rgba(168, 85, 247, 0.25); color: #c084fc; border: 1px solid rgba(192, 132, 252, 0.4); }
+    .badge-cyan { background: rgba(6, 182, 212, 0.2); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.4); }
+    .badge-emerald { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .badge-purple { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); }
 
+    /* Glassmorphic Card Container */
     .glass-card {
-        background: #ffffff;
-        border-radius: 18px;
-        padding: 1.6rem;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        padding: 1.8rem;
         border: 1px solid #e2e8f0;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.03), 0 4px 6px -2px rgba(0, 0, 0, 0.01);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04);
         margin-bottom: 1.5rem;
     }
 
-    .risk-banner-high {
-        background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-        border-left: 8px solid #ef4444;
-        padding: 1.8rem;
-        border-radius: 18px;
-        box-shadow: 0 10px 20px -5px rgba(239, 68, 68, 0.15);
+    .risk-banner-danger {
+        background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
+        border-left: 8px solid #f43f5e;
+        padding: 2rem;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px -5px rgba(244, 63, 94, 0.15);
     }
-    .risk-banner-medium {
+    .risk-banner-warn {
         background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
         border-left: 8px solid #f59e0b;
-        padding: 1.8rem;
-        border-radius: 18px;
-        box-shadow: 0 10px 20px -5px rgba(245, 158, 11, 0.15);
+        padding: 2rem;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.15);
     }
-    .risk-banner-low {
+    .risk-banner-safe {
         background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
         border-left: 8px solid #10b981;
-        padding: 1.8rem;
-        border-radius: 18px;
-        box-shadow: 0 10px 20px -5px rgba(16, 185, 129, 0.15);
+        padding: 2rem;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.15);
     }
 
-    .rec-box {
+    .metric-hero {
+        background: #ffffff;
+        padding: 1.4rem;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        text-align: center;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
+    }
+    .metric-hero-val {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: #0f172a;
+    }
+    .metric-hero-lbl {
+        font-size: 0.85rem;
+        color: #64748b;
+        margin-top: 0.2rem;
+        font-weight: 500;
+    }
+
+    .rec-card-box {
         background: #f8fafc;
         padding: 1rem 1.25rem;
-        border-radius: 12px;
+        border-radius: 14px;
         border-left: 4px solid #0284c7;
-        margin-bottom: 0.75rem;
-        border: 1px solid #e2e8f0;
-        border-left: 4px solid #0284c7;
+        margin-bottom: 0.8rem;
+        border-top: 1px solid #e2e8f0;
+        border-right: 1px solid #e2e8f0;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .anatomical-card {
+        background: #0f172a;
+        color: white;
+        padding: 1.5rem;
+        border-radius: 18px;
+        border: 1px solid #334155;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -139,7 +185,6 @@ def load_all_models():
             models[m_name] = joblib.load(info['filename'])
         return models, scaler, metadata
     except Exception as e:
-        # Dynamic Fallback: Retrain in memory if pickle version mismatch occurs across sklearn versions
         url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/processed.cleveland.data'
         column_names = ['age', 'sex', 'cp', 'trestbps', 'chol', 'fbs', 'restecg', 'thalach', 'exang', 'oldpeak', 'slope', 'ca', 'thal', 'target']
         try:
@@ -190,32 +235,38 @@ def load_all_models():
 
 models_suite, scaler, metadata = load_all_models()
 
-# Session State Initialization
+# Session State Setup
 if 'session_history' not in st.session_state:
     st.session_state.session_history = []
 if 'current_workspace' not in st.session_state:
-    st.session_state.current_workspace = "🧙‍♂️ Patient Assessment Wizard"
+    st.session_state.current_workspace = "🧙‍♂️ Step-by-Step Patient Wizard"
 if 'selected_model_name' not in st.session_state:
     st.session_state.selected_model_name = "Voting Ensemble"
 
-# Header Banner
+# Animated Hero Banner with SVG ECG Waveform
 st.markdown("""
-<div class="hero-container">
-    <div class="hero-title">❤️ HeartGuard AI</div>
-    <div class="hero-sub">Next-Generation Multi-Model Cardiac Intelligence & Clinical Simulation Platform</div>
-    <div class="hero-badges">
-        <span class="hero-badge b-teal">✓ 5 Multi-Model ML Ensemble Suite</span>
-        <span class="hero-badge b-blue">⚡ Real-Time Clinical Intervention Simulator</span>
-        <span class="hero-badge b-purple">🔬 UCI Cleveland Dataset Provenance</span>
+<div class="hero-banner">
+    <div style="margin-bottom: 1rem;">
+        <svg width="300" height="40" viewBox="0 0 300 40" style="margin:0 auto; display:block;">
+            <path d="M0,20 L60,20 L70,10 L80,30 L90,5 L100,35 L110,20 L170,20 L180,10 L190,30 L200,5 L210,35 L220,20 L300,20" 
+                  fill="none" stroke="#22d3ee" stroke-width="3" stroke-dasharray="1000" stroke-dashoffset="0" style="animation: ecg-dash 10s linear infinite;" />
+        </svg>
+    </div>
+    <div class="hero-title-text">HeartGuard AI</div>
+    <div class="hero-sub-text">Next-Generation Clinical Multi-Model Decision Support & Cardiac Intelligence Platform</div>
+    <div style="display:flex; justify-content:center; gap:0.8rem; flex-wrap:wrap;">
+        <span class="badge-pill badge-cyan">✓ 5 Multi-Model Machine Learning Ensemble</span>
+        <span class="badge-pill badge-emerald">⚡ Real-Time Clinical Intervention Simulator</span>
+        <span class="badge-pill badge-purple">🔬 Biometric Radar & Anatomical Mapping</span>
     </div>
 </div>
 """, unsafe_allow_html=True)
 
 # Sidebar Navigation & Model Selector
 with st.sidebar:
-    st.markdown("### 🏥 System Navigation")
+    st.markdown("### 🏥 Clinical Navigation")
     workspaces = [
-        "🧙‍♂️ Patient Assessment Wizard",
+        "🧙‍♂️ Step-by-Step Patient Wizard",
         "⚡ Real-Time Clinical Intervention Simulator",
         "📂 EHR Batch CSV Intelligence Suite",
         "🔬 ML Model Workbench & Comparison",
@@ -233,7 +284,7 @@ with st.sidebar:
 
         m_info = metadata['models'][active_model]
         st.info(f"""
-        **Selected**: {active_model}  
+        **Selected Model**: {active_model}  
         **Accuracy**: {m_info.get('accuracy', 0.867)*100:.1f}%  
         **AUC Score**: {m_info.get('roc_auc', 0.941):.3f}  
         **Recall**: {m_info.get('recall', 0.852)*100:.1f}%  
@@ -257,13 +308,13 @@ def get_prediction(model_name, features_dict):
     return prob, pred
 
 # ---------------------------------------------------------
-# WORKSPACE 1: PATIENT ASSESSMENT WIZARD
+# WORKSPACE 1: STEP-BY-STEP PATIENT WIZARD
 # ---------------------------------------------------------
-if st.session_state.current_workspace == "🧙‍♂️ Patient Assessment Wizard":
+if st.session_state.current_workspace == "🧙‍♂️ Step-by-Step Patient Wizard":
     st.markdown("## 🧙‍♂️ Step-by-Step Patient Assessment Wizard")
 
     # Quick Preset Avatars
-    st.markdown("##### ⚡ Load Pre-configured Clinical Benchmark Profiles")
+    st.markdown("##### ⚡ Quick Load Clinical Profiles")
     p1, p2, p3, p4 = st.columns(4)
     
     with p1:
@@ -318,7 +369,7 @@ if st.session_state.current_workspace == "🧙‍♂️ Patient Assessment Wizar
             st.rerun()
 
     with p4:
-        if st.button("🔄 Reset Defaults", use_container_width=True):
+        if st.button("🔄 Reset Form Defaults", use_container_width=True):
             st.session_state.wiz_age = 52
             st.session_state.wiz_sex = "Male"
             st.session_state.wiz_cp = "Atypical Angina (2)"
@@ -336,19 +387,19 @@ if st.session_state.current_workspace == "🧙‍♂️ Patient Assessment Wizar
 
     st.markdown("---")
 
-    # Form with Tooltips
-    w_tab1, w_tab2, w_tab3 = st.tabs(["1. Patient Vitals & Demographics", "2. Stress Test & ECG", "3. Fluoroscopy & Blood Status"])
+    # Multi-Step Intake Tabs
+    w_tab1, w_tab2, w_tab3 = st.tabs(["Step 1: Patient Vitals & Demographics", "Step 2: ECG & Exercise Stress Tests", "Step 3: Advanced Diagnostic Imaging"])
 
     with st.form("wizard_form"):
         with w_tab1:
             c1, c2 = st.columns(2)
             with c1:
                 age = st.number_input("Age (years)", 18, 100, st.session_state.get('wiz_age', 52), help="Patient age in completed years")
-                sex = st.selectbox("Gender", ["Male", "Female"], index=0 if st.session_state.get('wiz_sex', 'Male') == "Male" else 1, help="Biological sex of the patient")
-                trestbps = st.number_input("Resting Blood Pressure (mm Hg)", 70, 240, st.session_state.get('wiz_trestbps', 130), help="Resting BP measured on admission")
+                sex = st.selectbox("Gender", ["Male", "Female"], index=0 if st.session_state.get('wiz_sex', 'Male') == "Male" else 1, help="Biological sex")
+                trestbps = st.number_input("Resting Blood Pressure (mm Hg)", 70, 240, st.session_state.get('wiz_trestbps', 130), help="Resting BP measured upon admission")
             with c2:
                 chol = st.number_input("Serum Cholesterol (mg/dl)", 100, 650, st.session_state.get('wiz_chol', 240), help="Total serum cholesterol level")
-                fbs = st.selectbox("Fasting Blood Sugar > 120 mg/dl", ["No (≤ 120 mg/dl)", "Yes (> 120 mg/dl)"], index=0 if "No" in st.session_state.get('wiz_fbs', 'No') else 1, help="Fasting blood sugar indicator")
+                fbs = st.selectbox("Fasting Blood Sugar > 120 mg/dl", ["No (≤ 120 mg/dl)", "Yes (> 120 mg/dl)"], index=0 if "No" in st.session_state.get('wiz_fbs', 'No') else 1, help="Fasting blood sugar indicator for glucose tolerance")
 
         with w_tab2:
             c1, c2 = st.columns(2)
@@ -356,7 +407,7 @@ if st.session_state.current_workspace == "🧙‍♂️ Patient Assessment Wizar
                 cp_opts = ["Typical Angina (1)", "Atypical Angina (2)", "Non-Anginal Pain (3)", "Asymptomatic (4)"]
                 cp = st.selectbox("Chest Pain Type", cp_opts, index=1, help="Nature of reported chest discomfort")
                 restecg_opts = ["Normal (0)", "ST-T Wave Abnormality (1)", "Left Ventricular Hypertrophy (2)"]
-                restecg = st.selectbox("Resting ECG Results", restecg_opts, index=0, help="Resting electrocardiogram results")
+                restecg = st.selectbox("Resting ECG Results", restecg_opts, index=0, help="Resting electrocardiogram readings")
             with c2:
                 thalach = st.number_input("Max Heart Rate Achieved (bpm)", 60, 230, st.session_state.get('wiz_thalach', 150), help="Peak heart rate during exertion")
                 exang = st.selectbox("Exercise Induced Angina", ["No", "Yes"], index=0 if st.session_state.get('wiz_exang', 'No') == "No" else 1, help="Angina experienced during exercise")
@@ -364,18 +415,17 @@ if st.session_state.current_workspace == "🧙‍♂️ Patient Assessment Wizar
         with w_tab3:
             c1, c2 = st.columns(2)
             with c1:
-                oldpeak = st.slider("Exercise ST Depression (oldpeak)", 0.0, 6.2, float(st.session_state.get('wiz_oldpeak', 1.0)), step=0.1, help="ST depression induced by exercise relative to rest")
+                oldpeak = st.slider("Exercise ST Depression (oldpeak mm)", 0.0, 6.2, float(st.session_state.get('wiz_oldpeak', 1.0)), step=0.1, help="ST depression induced by exercise relative to rest")
                 slope_opts = ["Upsloping (1)", "Flat (2)", "Downsloping (3)"]
-                slope = st.selectbox("Slope of Peak Exercise ST Segment", slope_opts, index=0, help="Peak exercise ST slope")
+                slope = st.selectbox("Slope of Peak Exercise ST Segment", slope_opts, index=0, help="Peak exercise ST segment slope")
             with c2:
                 ca = st.slider("Major Vessels Colored by Fluoroscopy (0-3)", 0, 3, int(st.session_state.get('wiz_ca', 0)), help="Number of major vessels highlighted via fluoroscopy")
                 thal_opts = ["Normal (3)", "Fixed Defect (6)", "Reversible Defect (7)"]
                 thal = st.selectbox("Thalassemia Blood Status", thal_opts, index=0, help="Nuclear stress scan thalassemia status")
 
-        wiz_submit = st.form_submit_button("⚡ Run ML Risk Diagnostic Assessment", use_container_width=True, type="primary")
+        wiz_submit = st.form_submit_button("⚡ Run Multi-Model Diagnostic Assessment", use_container_width=True, type="primary")
 
     if wiz_submit:
-        # Encode Features
         features_dict = {
             'age': age,
             'sex': 1 if sex == "Male" else 0,
@@ -395,7 +445,6 @@ if st.session_state.current_workspace == "🧙‍♂️ Patient Assessment Wizar
         active_m = st.session_state.selected_model_name
         prob, pred = get_prediction(active_m, features_dict)
 
-        # Log session
         st.session_state.session_history.append({
             'timestamp': datetime.now().strftime("%H:%M:%S"),
             'model_used': active_m,
@@ -408,47 +457,47 @@ if st.session_state.current_workspace == "🧙‍♂️ Patient Assessment Wizar
         })
 
         st.markdown("---")
-        st.markdown(f"### 📊 Clinical Assessment Report ({active_m})")
+        st.markdown(f"### 📊 Comprehensive Diagnostic Report ({active_m})")
 
         if prob >= 70:
-            b_class, b_title, b_color = "risk-banner-high", "HIGH RISK FOR CARDIAC DISEASE", "#ef4444"
+            b_class, b_title, b_color = "risk-banner-danger", "HIGH RISK FOR CARDIAC DISEASE", "#f43f5e"
         elif prob >= 35:
-            b_class, b_title, b_color = "risk-banner-medium", "MODERATE RISK FOR CARDIAC DISEASE", "#f59e0b"
+            b_class, b_title, b_color = "risk-banner-warn", "MODERATE RISK FOR CARDIAC DISEASE", "#f59e0b"
         else:
-            b_class, b_title, b_color = "risk-banner-low", "LOW RISK FOR CARDIAC DISEASE", "#10b981"
+            b_class, b_title, b_color = "risk-banner-safe", "LOW RISK FOR CARDIAC DISEASE", "#10b981"
 
         r1, r2 = st.columns([1.5, 1])
         with r1:
             st.markdown(f"""
             <div class="{b_class}">
                 <h3 style="margin:0; color: {b_color}; font-weight:800;">{b_title}</h3>
-                <h1 style="font-size:3.5rem; margin:0.4rem 0; color:#0f172a;">{prob:.1f}% <span style="font-size:1.2rem; color:#64748b;">Disease Probability</span></h1>
-                <p style="margin:0; color:#334155; font-size:1rem; line-height:1.5;">
-                    The active ML model (<b>{active_m}</b>) evaluates this patient as 
+                <h1 style="font-size:3.8rem; margin:0.4rem 0; color:#0f172a;">{prob:.1f}% <span style="font-size:1.2rem; color:#64748b;">Disease Probability</span></h1>
+                <p style="margin:0; color:#334155; font-size:1.05rem; line-height:1.5;">
+                    The active model (<b>{active_m}</b>) evaluates this clinical profile as 
                     <b>{'POSITIVE for Coronary Artery Disease' if pred == 1 else 'NEGATIVE for Coronary Artery Disease'}</b>.
                 </p>
             </div>
             """, unsafe_allow_html=True)
 
             st.markdown("<br>", unsafe_allow_html=True)
-            st.markdown("#### 💡 Patient-Specific Clinical Action Plan")
+            st.markdown("#### 💡 Clinical Guidance & Treatment Plan")
 
             recs = []
             if prob >= 50:
-                recs.append("🚨 **Cardiology Referral**: Urgent referral for coronary angiography / stress echocardiogram.")
+                recs.append("🚨 **Cardiology Referral**: Urgent referral for coronary angiography / nuclear stress test.")
             if chol > 240:
-                recs.append(f"💊 **Lipid Management**: Serum cholesterol ({chol} mg/dl) is elevated. Evaluate statin therapy & diet.")
+                recs.append(f"💊 **Lipid Control**: Serum cholesterol ({chol} mg/dl) is elevated (>240 mg/dl). Evaluate statin therapy.")
             if trestbps > 130:
-                recs.append(f"🩸 **Hypertension Protocol**: Resting BP ({trestbps} mm Hg) is elevated. Monitor ambulatory BP.")
+                recs.append(f"🩸 **BP Monitoring**: Resting BP ({trestbps} mm Hg) is elevated. Recommend ambulatory BP tracking.")
             if oldpeak > 1.0:
-                recs.append(f"📉 **ST Depression Monitoring**: Exercise ST depression ({oldpeak} mm) suggests exertion-induced ischemia.")
+                recs.append(f"📉 **Ischemia Evaluation**: Exercise ST depression ({oldpeak} mm) indicates exertion-induced ischemia.")
             if exang == "Yes":
-                recs.append("🏃 **Exercise Angina**: Angina triggered by physical exertion indicates restricted coronary perfusion.")
+                recs.append("🏃 **Angina Protocol**: Chest pain triggered by exertion indicates restricted coronary blood flow.")
             if len(recs) == 0:
-                recs.append("✅ **Maintain Current Vitals**: Patient vitals are within normal reference ranges.")
+                recs.append("✅ **Normal Vitals**: Patient parameters are within normal reference ranges.")
 
             for r in recs:
-                st.markdown(f'<div class="rec-box">{r}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="rec-card-box">{r}</div>', unsafe_allow_html=True)
 
         with r2:
             fig_g = go.Figure(go.Indicator(
@@ -463,12 +512,73 @@ if st.session_state.current_workspace == "🧙‍♂️ Patient Assessment Wizar
                     'steps': [
                         {'range': [0, 35], 'color': 'rgba(16, 185, 129, 0.15)'},
                         {'range': [35, 70], 'color': 'rgba(245, 158, 11, 0.15)'},
-                        {'range': [70, 100], 'color': 'rgba(239, 68, 68, 0.15)'}
+                        {'range': [70, 100], 'color': 'rgba(244, 63, 94, 0.15)'}
                     ]
                 }
             ))
             fig_g.update_layout(height=280, margin=dict(l=20, r=20, t=40, b=20))
             st.plotly_chart(fig_g, use_container_width=True)
+
+        # Biometric Clinical Radar Chart
+        st.markdown("---")
+        st.markdown("### 🕸️ Patient Biometric Radar vs. Healthy Baseline")
+
+        norm_age = min(age / 100.0, 1.0)
+        norm_bp = min(trestbps / 200.0, 1.0)
+        norm_chol = min(chol / 400.0, 1.0)
+        norm_hr = min(thalach / 220.0, 1.0)
+        norm_op = min(oldpeak / 5.0, 1.0)
+        norm_ca = min(ca / 3.0, 1.0)
+
+        categories = ['Age', 'Resting BP', 'Cholesterol', 'Max Heart Rate', 'ST Depression', 'Major Vessels']
+
+        fig_radar = go.Figure()
+        fig_radar.add_trace(go.Scatterpolar(
+            r=[norm_age, norm_bp, norm_chol, norm_hr, norm_op, norm_ca],
+            theta=categories,
+            fill='toself',
+            name='Patient Profile',
+            line_color='#0284c7'
+        ))
+        fig_radar.add_trace(go.Scatterpolar(
+            r=[0.4, 0.5, 0.45, 0.75, 0.0, 0.0],
+            theta=categories,
+            fill='toself',
+            name='Healthy Reference Target',
+            line_color='#10b981'
+        ))
+        fig_radar.update_layout(
+            polar=dict(radialaxis=dict(visible=True, range=[0, 1])),
+            showlegend=True,
+            height=350,
+            margin=dict(l=40, r=40, t=20, b=20)
+        )
+        st.plotly_chart(fig_radar, use_container_width=True)
+
+        # Anatomical Risk Mapping Card
+        st.markdown("### 🫀 Cardiac Anatomical Risk Mapping")
+        st.markdown(f"""
+        <div class="anatomical-card">
+            <h4 style="color:#38bdf8; margin:0 0 1rem 0;">Physiological & Anatomical Status</h4>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
+                <div style="background:rgba(255,255,255,0.05); padding:1rem; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+                    <div style="font-weight:700; color:#38bdf8;">Coronary Vessels (ca)</div>
+                    <div style="font-size:1.4rem; font-weight:800; margin:0.3rem 0;">{ca} / 3 Vessels</div>
+                    <div style="font-size:0.8rem; color:#94a3b8;">{'Significant Stenosis Detected' if ca > 0 else 'Clear Vessels'}</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.05); padding:1rem; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+                    <div style="font-weight:700; color:#38bdf8;">ST Segment Ischemia</div>
+                    <div style="font-size:1.4rem; font-weight:800; margin:0.3rem 0;">{oldpeak} mm</div>
+                    <div style="font-size:0.8rem; color:#94a3b8;">{'Exertional Myocardial Depression' if oldpeak > 1.0 else 'Normal ST Baseline'}</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.05); padding:1rem; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+                    <div style="font-weight:700; color:#38bdf8;">Myocardial Perfusion</div>
+                    <div style="font-size:1.4rem; font-weight:800; margin:0.3rem 0;">{thal}</div>
+                    <div style="font-size:0.8rem; color:#94a3b8;">{'Reversible Ischemic Defect' if thal == 'Reversible Defect (7)' else 'Normal Nuclear Scan'}</div>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
 # WORKSPACE 2: REAL-TIME INTERVENTION SIMULATOR
@@ -476,18 +586,18 @@ if st.session_state.current_workspace == "🧙‍♂️ Patient Assessment Wizar
 elif st.session_state.current_workspace == "⚡ Real-Time Clinical Intervention Simulator":
     st.markdown("## ⚡ Real-Time Interactive Clinical Intervention Simulator")
     st.markdown("""
-    Adjust patient vitals in real time to simulate how clinical interventions (e.g., lowering blood pressure, lowering cholesterol, or increasing exercise tolerance) immediately impact the patient's predicted heart disease risk probability.
+    Adjust patient vitals in real time to simulate how medical interventions (e.g., controlling blood pressure, lowering cholesterol, or improving exercise tolerance) immediately alter predicted cardiac risk.
     """)
 
     sim_col1, sim_col2 = st.columns([1, 1.2])
 
     with sim_col1:
-        st.markdown("#### 🎛️ Baseline & Simulated Parameters")
+        st.markdown("#### 🎛️ Interactive Vitals Controls")
         sim_age = st.slider("Simulated Age", 20, 90, 60)
         sim_bp = st.slider("Resting Blood Pressure (mm Hg)", 90, 200, 150)
         sim_chol = st.slider("Serum Cholesterol (mg/dl)", 120, 450, 260)
         sim_hr = st.slider("Max Heart Rate (thalach)", 70, 210, 130)
-        sim_op = st.slider("ST Depression (oldpeak)", 0.0, 5.0, 2.0, step=0.1)
+        sim_op = st.slider("ST Depression (oldpeak mm)", 0.0, 5.0, 2.0, step=0.1)
         sim_ca = st.selectbox("Major Vessels (ca)", [0, 1, 2, 3], index=2)
         sim_ex = st.selectbox("Exercise Angina", ["No", "Yes"], index=1)
 
@@ -511,20 +621,19 @@ elif st.session_state.current_workspace == "⚡ Real-Time Clinical Intervention 
         active_m = st.session_state.selected_model_name
         prob_sim, pred_sim = get_prediction(active_m, features_sim)
 
-        st.markdown("#### 📉 Live Simulation Outcome")
+        st.markdown("#### 📉 Live Simulation Risk Outcome")
         
-        sim_color = "#ef4444" if prob_sim >= 70 else "#f59e0b" if prob_sim >= 35 else "#10b981"
+        sim_color = "#f43f5e" if prob_sim >= 70 else "#f59e0b" if prob_sim >= 35 else "#10b981"
         st.markdown(f"""
-        <div class="glass-card" style="text-align:center; border-top: 6px solid {sim_color};">
-            <h4 style="color:#64748b; margin:0;">SIMULATED RISK PROBABILITY</h4>
-            <h1 style="font-size:4rem; color:{sim_color}; margin:0.5rem 0; font-weight:800;">{prob_sim:.1f}%</h1>
-            <p style="font-size:1.1rem; font-weight:600; color:#0f172a; margin:0;">
+        <div class="glass-card" style="text-align:center; border-top: 8px solid {sim_color};">
+            <h4 style="color:#64748b; margin:0; font-weight:600;">SIMULATED RISK PROBABILITY</h4>
+            <h1 style="font-size:4.2rem; color:{sim_color}; margin:0.4rem 0; font-weight:800;">{prob_sim:.1f}%</h1>
+            <p style="font-size:1.15rem; font-weight:700; color:#0f172a; margin:0;">
                 Diagnosis: {'POSITIVE FOR HEART DISEASE' if pred_sim == 1 else 'NEGATIVE FOR HEART DISEASE'}
             </p>
         </div>
         """, unsafe_allow_html=True)
 
-        # Simulation Intervention Delta Analysis
         st.markdown("##### 💡 Simulated Treatment Impact Analysis")
         feat_bp_c = features_sim.copy()
         feat_bp_c['trestbps'] = 120
@@ -541,7 +650,7 @@ elif st.session_state.current_workspace == "⚡ Real-Time Clinical Intervention 
         p_comb, _ = get_prediction(active_m, feat_comb)
 
         delta_df = pd.DataFrame({
-            'Intervention Scenario': ['Current State', 'If BP Controlled (120 mm Hg)', 'If Chol Controlled (190 mg/dl)', 'Combined Medical Intervention'],
+            'Intervention Scenario': ['Current Baseline', 'BP Controlled (120 mm Hg)', 'Chol Controlled (190 mg/dl)', 'Combined Medical Intervention'],
             'Risk Probability (%)': [prob_sim, p_bp, p_chol, p_comb]
         })
 
@@ -605,7 +714,7 @@ elif st.session_state.current_workspace == "📂 EHR Batch CSV Intelligence Suit
                         nbins=20, 
                         title=f"Risk Score Distribution across Batch ({active_m})",
                         color='Risk_Category',
-                        color_discrete_map={'High Risk': '#ef4444', 'Moderate Risk': '#f59e0b', 'Low Risk': '#10b981'}
+                        color_discrete_map={'High Risk': '#f43f5e', 'Moderate Risk': '#f59e0b', 'Low Risk': '#10b981'}
                     )
                     st.plotly_chart(fig_b, use_container_width=True)
 

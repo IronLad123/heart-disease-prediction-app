@@ -22,7 +22,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom High-End Aesthetics & Glassmorphism Design Tokens
+# Custom Ultra-Modern Cyber-Clinical Color Palette Design System
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
@@ -41,8 +41,9 @@ st.markdown("""
         100% { background-position: 0% 50%; }
     }
 
+    /* Hero Banner with Modern Gradient */
     .hero-banner {
-        background: linear-gradient(-45deg, #070a12, #0f172a, #1e1b4b, #0f766e, #0284c7);
+        background: linear-gradient(-45deg, #070a12, #0f172a, #312e81, #0284c7);
         background-size: 400% 400%;
         animation: gradient-bg 15s ease infinite;
         padding: 3rem 2rem;
@@ -82,79 +83,88 @@ st.markdown("""
         font-weight: 600;
         backdrop-filter: blur(12px);
     }
-    .badge-cyan { background: rgba(6, 182, 212, 0.2); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.4); }
-    .badge-emerald { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
-    .badge-purple { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); }
+    .badge-cyan { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); }
+    .badge-emerald { background: rgba(52, 211, 153, 0.2); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.4); }
+    .badge-purple { background: rgba(192, 132, 252, 0.2); color: #c084fc; border: 1px solid rgba(192, 132, 252, 0.4); }
 
+    /* Modern Dark Slate Cards */
     .glass-card {
-        background: rgba(255, 255, 255, 0.95);
+        background: #1e293b;
         border-radius: 20px;
         padding: 1.8rem;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04);
+        border: 1px solid #334155;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
         margin-bottom: 1.5rem;
+        color: #f8fafc;
     }
 
     .relevance-card {
-        background: #f1f5f9;
-        border-radius: 12px;
-        padding: 0.9rem 1.1rem;
-        border-left: 4px solid #0284c7;
+        background: #0f172a;
+        border-radius: 14px;
+        padding: 1rem 1.2rem;
+        border-left: 4px solid #38bdf8;
         margin-top: 0.4rem;
         margin-bottom: 1.2rem;
         font-size: 0.88rem;
-        color: #334155;
-        line-height: 1.45;
+        color: #cbd5e1;
+        line-height: 1.5;
+        border-top: 1px solid #1e293b;
+        border-right: 1px solid #1e293b;
+        border-bottom: 1px solid #1e293b;
     }
     .relevance-title {
         font-weight: 700;
-        color: #0f172a;
+        color: #38bdf8;
         margin-bottom: 0.2rem;
         display: block;
     }
     .relevance-norm {
-        color: #64748b;
+        color: #94a3b8;
         font-size: 0.82rem;
         display: block;
-        margin-top: 0.2rem;
+        margin-top: 0.3rem;
     }
     .relevance-user {
-        color: #0369a1;
+        color: #34d399;
         font-weight: 600;
         display: block;
         margin-top: 0.3rem;
     }
 
     .risk-banner-danger {
-        background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
+        background: linear-gradient(135deg, #4c0519 0%, #881337 100%);
         border-left: 8px solid #f43f5e;
         padding: 2rem;
         border-radius: 20px;
-        box-shadow: 0 10px 25px -5px rgba(244, 63, 94, 0.15);
+        color: white;
+        box-shadow: 0 10px 25px -5px rgba(244, 63, 94, 0.3);
     }
     .risk-banner-warn {
-        background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+        background: linear-gradient(135deg, #451a03 0%, #78350f 100%);
         border-left: 8px solid #f59e0b;
         padding: 2rem;
         border-radius: 20px;
-        box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.15);
+        color: white;
+        box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.3);
     }
     .risk-banner-safe {
-        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        background: linear-gradient(135deg, #022c22 0%, #064e3b 100%);
         border-left: 8px solid #10b981;
         padding: 2rem;
         border-radius: 20px;
-        box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.15);
+        color: white;
+        box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.3);
     }
 
     .rec-card-box {
-        background: #f8fafc;
+        background: #0f172a;
         padding: 1rem 1.25rem;
         border-radius: 14px;
-        border-left: 4px solid #0284c7;
+        border-left: 4px solid #38bdf8;
         margin-bottom: 0.8rem;
-        border: 1px solid #e2e8f0;
-        border-left: 4px solid #0284c7;
+        border: 1px solid #1e293b;
+        border-left: 4px solid #38bdf8;
+        color: #f8fafc;
     }
     
     .anatomical-card {
@@ -244,7 +254,7 @@ st.markdown("""
     <div style="margin-bottom: 1rem;">
         <svg width="300" height="40" viewBox="0 0 300 40" style="margin:0 auto; display:block;">
             <path d="M0,20 L60,20 L70,10 L80,30 L90,5 L100,35 L110,20 L170,20 L180,10 L190,30 L200,5 L210,35 L220,20 L300,20" 
-                  fill="none" stroke="#22d3ee" stroke-width="3" stroke-dasharray="1000" stroke-dashoffset="0" style="animation: ecg-dash 10s linear infinite;" />
+                  fill="none" stroke="#38bdf8" stroke-width="3" stroke-dasharray="1000" stroke-dashoffset="0" style="animation: ecg-dash 10s linear infinite;" />
         </svg>
     </div>
     <div class="hero-title-text">HeartGuard AI</div>
@@ -582,8 +592,8 @@ if st.session_state.current_workspace == "Patient Intake & XAI":
             st.markdown(f"""
             <div class="{b_class}">
                 <h3 style="margin:0; color: {b_color}; font-weight:800;">{b_title}</h3>
-                <h1 style="font-size:3.8rem; margin:0.4rem 0; color:#0f172a;">{prob:.1f}% <span style="font-size:1.2rem; color:#64748b;">Disease Probability</span></h1>
-                <p style="margin:0; color:#334155; font-size:1.05rem; line-height:1.5;">
+                <h1 style="font-size:3.8rem; margin:0.4rem 0; color:#ffffff;">{prob:.1f}% <span style="font-size:1.2rem; color:#cbd5e1;">Disease Probability</span></h1>
+                <p style="margin:0; color:#f8fafc; font-size:1.05rem; line-height:1.5;">
                     The active model (<b>{active_m}</b>) evaluates this clinical profile as 
                     <b>{'POSITIVE for Coronary Artery Disease' if pred == 1 else 'NEGATIVE for Coronary Artery Disease'}</b>.
                 </p>
@@ -614,20 +624,20 @@ if st.session_state.current_workspace == "Patient Intake & XAI":
             fig_g = go.Figure(go.Indicator(
                 mode="gauge+number",
                 value=prob,
-                title={'text': f"Risk Score ({active_m})", 'font': {'size': 18, 'color': '#0f172a'}},
+                title={'text': f"Risk Score ({active_m})", 'font': {'size': 18, 'color': '#f8fafc'}},
                 number={'suffix': "%", 'font': {'size': 32, 'color': b_color}},
                 gauge={
                     'axis': {'range': [0, 100], 'tickwidth': 1},
                     'bar': {'color': b_color},
-                    'bgcolor': "white",
+                    'bgcolor': "#0f172a",
                     'steps': [
-                        {'range': [0, 35], 'color': 'rgba(16, 185, 129, 0.15)'},
-                        {'range': [35, 70], 'color': 'rgba(245, 158, 11, 0.15)'},
-                        {'range': [70, 100], 'color': 'rgba(244, 63, 94, 0.15)'}
+                        {'range': [0, 35], 'color': 'rgba(16, 185, 129, 0.25)'},
+                        {'range': [35, 70], 'color': 'rgba(245, 158, 11, 0.25)'},
+                        {'range': [70, 100], 'color': 'rgba(244, 63, 94, 0.25)'}
                     ]
                 }
             ))
-            fig_g.update_layout(height=280, margin=dict(l=20, r=20, t=40, b=20))
+            fig_g.update_layout(height=280, paper_bgcolor='#1e293b', font=dict(color='#f8fafc'), margin=dict(l=20, r=20, t=40, b=20))
             st.plotly_chart(fig_g, use_container_width=True)
 
         # Explainable AI (XAI) Risk Waterfall Chart
@@ -661,8 +671,8 @@ if st.session_state.current_workspace == "Patient Intake & XAI":
             textposition="outside",
             text=[f"{y:+.1f}%" for y in xai_y],
             y=xai_y,
-            connector={"line": {"color": "rgb(63, 63, 63)"}},
-            decreasing={"marker": {"color": "#10b981"}},
+            connector={"line": {"color": "#64748b"}},
+            decreasing={"marker": {"color": "#34d399"}},
             increasing={"marker": {"color": "#f43f5e"}}
         ))
 
@@ -670,6 +680,9 @@ if st.session_state.current_workspace == "Patient Intake & XAI":
             title="Patient Feature Risk Contribution Push (+ risk increase, - risk reduction)",
             showlegend=False,
             height=380,
+            paper_bgcolor='#1e293b',
+            plot_bgcolor='#0f172a',
+            font=dict(color='#f8fafc'),
             margin=dict(l=20, r=20, t=40, b=20)
         )
         st.plotly_chart(fig_waterfall, use_container_width=True)
@@ -680,7 +693,7 @@ if st.session_state.current_workspace == "Patient Intake & XAI":
 
         vitals_comp_df = pd.DataFrame({
             'Vital Parameter': ['Resting Blood Pressure', 'Serum Cholesterol', 'Max Heart Rate (thalach)', 'ST Depression (oldpeak)'],
-            'Patient Value': [trestbps, chol, thalach, oldpeak * 20],  # scaled for display
+            'Patient Value': [trestbps, chol, thalach, oldpeak * 20],
             'Clinical Target Threshold': [120, 200, 150, 0.0]
         })
 
@@ -690,9 +703,9 @@ if st.session_state.current_workspace == "Patient Intake & XAI":
             y=['Patient Value', 'Clinical Target Threshold'],
             barmode='group',
             title="Comparison of Patient Vitals with Healthy Clinical Reference Values",
-            color_discrete_sequence=['#0284c7', '#10b981']
+            color_discrete_sequence=['#38bdf8', '#34d399']
         )
-        fig_comp.update_layout(height=360, margin=dict(l=20, r=20, t=30, b=20))
+        fig_comp.update_layout(height=360, paper_bgcolor='#1e293b', plot_bgcolor='#0f172a', font=dict(color='#f8fafc'), margin=dict(l=20, r=20, t=30, b=20))
         st.plotly_chart(fig_comp, use_container_width=True)
 
 # ---------------------------------------------------------
@@ -737,12 +750,12 @@ elif st.session_state.current_workspace == "Clinical Risk Simulator & 10-Yr Prog
         prob_sim, pred_sim = get_prediction(active_m, features_sim)
 
         st.markdown("#### Live Simulation Risk Outcome")
-        sim_color = "#f43f5e" if prob_sim >= 70 else "#f59e0b" if prob_sim >= 35 else "#10b981"
+        sim_color = "#f43f5e" if prob_sim >= 70 else "#f59e0b" if prob_sim >= 35 else "#34d399"
         st.markdown(f"""
         <div class="glass-card" style="text-align:center; border-top: 8px solid {sim_color};">
-            <h4 style="color:#64748b; margin:0; font-weight:600;">SIMULATED RISK PROBABILITY</h4>
+            <h4 style="color:#94a3b8; margin:0; font-weight:600;">SIMULATED RISK PROBABILITY</h4>
             <h1 style="font-size:4.2rem; color:{sim_color}; margin:0.4rem 0; font-weight:800;">{prob_sim:.1f}%</h1>
-            <p style="font-size:1.15rem; font-weight:700; color:#0f172a; margin:0;">
+            <p style="font-size:1.15rem; font-weight:700; color:#f8fafc; margin:0;">
                 Diagnosis: {'POSITIVE FOR HEART DISEASE' if pred_sim == 1 else 'NEGATIVE FOR HEART DISEASE'}
             </p>
         </div>
@@ -769,9 +782,9 @@ elif st.session_state.current_workspace == "Clinical Risk Simulator & 10-Yr Prog
         y='Predicted Risk (%)', 
         color='Clinical Management Strategy',
         markers=True,
-        color_discrete_map={'Unmanaged Risk Baseline': '#f43f5e', 'Proactive Medical Intervention': '#10b981'}
+        color_discrete_map={'Unmanaged Risk Baseline': '#f43f5e', 'Proactive Medical Intervention': '#34d399'}
     )
-    fig_prog.update_layout(height=350, margin=dict(l=20, r=20, t=20, b=20))
+    fig_prog.update_layout(height=350, paper_bgcolor='#1e293b', plot_bgcolor='#0f172a', font=dict(color='#f8fafc'), margin=dict(l=20, r=20, t=20, b=20))
     st.plotly_chart(fig_prog, use_container_width=True)
 
 # ---------------------------------------------------------
@@ -795,6 +808,8 @@ elif st.session_state.current_workspace == "3D Anatomical Mesh & SOAP Notes":
             title="Interactive 3D Myocardial Perfusion Surface Model",
             scene=dict(xaxis_title='LAD Artery', yaxis_title='Left Ventricle', zaxis_title='RCA Artery'),
             height=380,
+            paper_bgcolor='#1e293b',
+            font=dict(color='#f8fafc'),
             margin=dict(l=0, r=0, t=30, b=0)
         )
         st.plotly_chart(fig_3d, use_container_width=True)
@@ -880,8 +895,9 @@ elif st.session_state.current_workspace == "Batch EHR CSV Intelligence Suite":
                         nbins=20, 
                         title=f"Risk Score Distribution across Batch ({active_m})",
                         color='Risk_Category',
-                        color_discrete_map={'High Risk': '#f43f5e', 'Moderate Risk': '#f59e0b', 'Low Risk': '#10b981'}
+                        color_discrete_map={'High Risk': '#f43f5e', 'Moderate Risk': '#f59e0b', 'Low Risk': '#34d399'}
                     )
+                    fig_b.update_layout(paper_bgcolor='#1e293b', plot_bgcolor='#0f172a', font=dict(color='#f8fafc'))
                     st.plotly_chart(fig_b, use_container_width=True)
 
                     st.dataframe(b_df, use_container_width=True)
@@ -917,8 +933,9 @@ elif st.session_state.current_workspace == "ML Model Workbench & Comparison":
                 y=['accuracy', 'roc_auc', 'f1_score'], 
                 barmode='group',
                 title="Model Accuracy, AUC & F1-Score Comparison",
-                color_discrete_sequence=['#0284c7', '#10b981', '#f59e0b']
+                color_discrete_sequence=['#38bdf8', '#34d399', '#f59e0b']
             )
+            fig_acc.update_layout(paper_bgcolor='#1e293b', plot_bgcolor='#0f172a', font=dict(color='#f8fafc'))
             st.plotly_chart(fig_acc, use_container_width=True)
 
         with col_m2:
@@ -934,6 +951,7 @@ elif st.session_state.current_workspace == "ML Model Workbench & Comparison":
                 text_auto=True,
                 color_continuous_scale='Blues'
             )
+            fig_cm.update_layout(paper_bgcolor='#1e293b', font=dict(color='#f8fafc'))
             st.plotly_chart(fig_cm, use_container_width=True)
 
 # ---------------------------------------------------------
@@ -945,7 +963,7 @@ else:
     st.markdown("""
     <div class="glass-card">
         <h3>UCI Cleveland Heart Disease Benchmark Dataset</h3>
-        <p style="color:#475569; line-height:1.6;">
+        <p style="color:#94a3b8; line-height:1.6;">
             The UCI Cleveland dataset is the gold-standard benchmark in cardiac machine learning research.
             It comprises 297 cleaned patient records across 13 clinical features.
         </p>
@@ -986,7 +1004,7 @@ else:
 # Footer
 st.markdown("---")
 st.markdown("""
-<div style="text-align: center; color: #64748b; font-size: 0.85rem; padding: 1.5rem 0;">
+<div style="text-align: center; color: #94a3b8; font-size: 0.85rem; padding: 1.5rem 0;">
     HeartGuard AI Ultra Release | Clinical Multi-Model Intelligence Suite | Developed by Om Srivastava
 </div>
 """, unsafe_allow_html=True)

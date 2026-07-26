@@ -41,7 +41,6 @@ st.markdown("""
         100% { background-position: 0% 50%; }
     }
 
-    /* Hero Banner with Animated Gradient */
     .hero-banner {
         background: linear-gradient(-45deg, #070a12, #0f172a, #1e1b4b, #0f766e, #0284c7);
         background-size: 400% 400%;
@@ -94,6 +93,36 @@ st.markdown("""
         border: 1px solid #e2e8f0;
         box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04);
         margin-bottom: 1.5rem;
+    }
+
+    .relevance-card {
+        background: #f1f5f9;
+        border-radius: 12px;
+        padding: 0.9rem 1.1rem;
+        border-left: 4px solid #0284c7;
+        margin-top: 0.4rem;
+        margin-bottom: 1.2rem;
+        font-size: 0.88rem;
+        color: #334155;
+        line-height: 1.45;
+    }
+    .relevance-title {
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 0.2rem;
+        display: block;
+    }
+    .relevance-norm {
+        color: #64748b;
+        font-size: 0.82rem;
+        display: block;
+        margin-top: 0.2rem;
+    }
+    .relevance-user {
+        color: #0369a1;
+        font-weight: 600;
+        display: block;
+        margin-top: 0.3rem;
     }
 
     .risk-banner-danger {
@@ -219,10 +248,10 @@ st.markdown("""
         </svg>
     </div>
     <div class="hero-title-text">HeartGuard AI</div>
-    <div class="hero-sub-text">Clinical Multi-Model Decision Support & Cardiac Intelligence Platform</div>
+    <div class="hero-sub-text">Clinical Multi-Model Decision Support & Patient Parameter Intelligence Platform</div>
     <div style="display:flex; justify-content:center; gap:0.8rem; flex-wrap:wrap;">
         <span class="badge-pill badge-cyan">5 Multi-Model ML Ensemble</span>
-        <span class="badge-pill badge-emerald">Real-Time Clinical Intervention Simulator</span>
+        <span class="badge-pill badge-emerald">Real-Time Clinical Parameter Relevance</span>
         <span class="badge-pill badge-purple">UCI Cleveland Dataset Provenance</span>
     </div>
 </div>
@@ -275,10 +304,11 @@ def get_prediction(model_name, features_dict):
     return prob, pred
 
 # ---------------------------------------------------------
-# WORKSPACE 1: PATIENT INTAKE & XAI
+# WORKSPACE 1: PATIENT INTAKE & XAI (WITH INLINE RELEVANCE)
 # ---------------------------------------------------------
 if st.session_state.current_workspace == "Patient Intake & XAI":
     st.markdown("## Patient Intake & Explainable AI (XAI)")
+    st.markdown("Enter patient clinical vitals below. Each input field features a dedicated **Clinical Relevance Box** explaining what the value means, why it matters, and its medical threshold.")
 
     # Quick Preset Profiles
     st.markdown("##### Quick Load Clinical Profiles")
@@ -354,41 +384,155 @@ if st.session_state.current_workspace == "Patient Intake & XAI":
 
     st.markdown("---")
 
-    # Intake Tabs
+    # Interactive Form with Clinical Relevance Boxes Below Every Input
     w_tab1, w_tab2, w_tab3 = st.tabs(["Step 1: Patient Vitals & Demographics", "Step 2: ECG & Exercise Stress Tests", "Step 3: Advanced Diagnostic Imaging"])
 
     with st.form("wizard_form"):
         with w_tab1:
             c1, c2 = st.columns(2)
             with c1:
-                age = st.number_input("Age (years)", 18, 100, st.session_state.get('wiz_age', 52), help="Patient age in completed years")
-                sex = st.selectbox("Gender", ["Male", "Female"], index=0 if st.session_state.get('wiz_sex', 'Male') == "Male" else 1, help="Biological sex")
-                trestbps = st.number_input("Resting Blood Pressure (mm Hg)", 70, 240, st.session_state.get('wiz_trestbps', 130), help="Resting BP measured upon admission")
+                age = st.number_input("Age (years)", 18, 100, st.session_state.get('wiz_age', 52))
+                st.markdown(f"""
+                <div class="relevance-card">
+                    <span class="relevance-title">Clinical Relevance of Age:</span>
+                    Coronary artery disease risk increases steadily with age due to long-term arterial stiffening, vascular calcification, and cumulative lipid exposure.
+                    <span class="relevance-norm">Normal Threshold: Age > 55 years is a major independent cardiovascular risk factor.</span>
+                    <span class="relevance-user">Current Value Analysis: {age} years ({'Elevated Age Risk Factor' if age > 55 else 'Lower Age Risk Factor'})</span>
+                </div>
+                """, unsafe_allow_html=True)
+
+                sex = st.selectbox("Gender", ["Male", "Female"], index=0 if st.session_state.get('wiz_sex', 'Male') == "Male" else 1)
+                st.markdown(f"""
+                <div class="relevance-card">
+                    <span class="relevance-title">Clinical Relevance of Gender:</span>
+                    Males historically present higher early-onset coronary artery disease rates due to lack of pre-menopausal estrogen vascular protection.
+                    <span class="relevance-norm">Reference: Male = 1, Female = 0</span>
+                    <span class="relevance-user">Current Value Analysis: {sex} ({'Male High-Baseline Risk Profile' if sex == 'Male' else 'Female Protective Baseline Profile'})</span>
+                </div>
+                """, unsafe_allow_html=True)
+
+                trestbps = st.number_input("Resting Blood Pressure (mm Hg)", 70, 240, st.session_state.get('wiz_trestbps', 130))
+                st.markdown(f"""
+                <div class="relevance-card">
+                    <span class="relevance-title">Clinical Relevance of Resting BP:</span>
+                    Hypertension damages arterial endothelium, accelerates atherosclerosis, and increases left ventricular myocardial workload.
+                    <span class="relevance-norm">Normal Threshold: Normal < 120 mm Hg, Elevated 120-129, Stage 1 HTN 130-139, Stage 2 HTN >= 140 mm Hg</span>
+                    <span class="relevance-user">Current Value Analysis: {trestbps} mm Hg ({'Hypertensive Category' if trestbps >= 130 else 'Optimal Blood Pressure'})</span>
+                </div>
+                """, unsafe_allow_html=True)
+
             with c2:
-                chol = st.number_input("Serum Cholesterol (mg/dl)", 100, 650, st.session_state.get('wiz_chol', 240), help="Total serum cholesterol level")
-                fbs = st.selectbox("Fasting Blood Sugar > 120 mg/dl", ["No (<= 120 mg/dl)", "Yes (> 120 mg/dl)"], index=0 if "No" in st.session_state.get('wiz_fbs', 'No') else 1, help="Fasting blood sugar indicator for glucose tolerance")
+                chol = st.number_input("Serum Cholesterol (mg/dl)", 100, 650, st.session_state.get('wiz_chol', 240))
+                st.markdown(f"""
+                <div class="relevance-card">
+                    <span class="relevance-title">Clinical Relevance of Cholesterol:</span>
+                    Elevated serum cholesterol leads to low-density lipoprotein (LDL) deposition in vessel intima, causing coronary artery plaque stenosis.
+                    <span class="relevance-norm">Normal Threshold: Desirable < 200 mg/dl, Borderline High 200-239, High >= 240 mg/dl</span>
+                    <span class="relevance-user">Current Value Analysis: {chol} mg/dl ({'High Hypercholesterolemia' if chol >= 240 else 'Desirable Cholesterol Level' if chol < 200 else 'Borderline Elevated'})</span>
+                </div>
+                """, unsafe_allow_html=True)
+
+                fbs = st.selectbox("Fasting Blood Sugar > 120 mg/dl", ["No (<= 120 mg/dl)", "Yes (> 120 mg/dl)"], index=0 if "No" in st.session_state.get('wiz_fbs', 'No') else 1)
+                st.markdown(f"""
+                <div class="relevance-card">
+                    <span class="relevance-title">Clinical Relevance of Fasting Blood Sugar:</span>
+                    Fasting blood sugar > 120 mg/dl indicates diabetic or pre-diabetic glucose intolerance, which doubles cardiovascular event risk.
+                    <span class="relevance-norm">Normal Threshold: Fasting Glucose <= 100 mg/dl (Normal), > 120 mg/dl (Diabetic Threshold)</span>
+                    <span class="relevance-user">Current Value Analysis: {fbs} ({'Elevated Diabetic Risk Factor' if 'Yes' in fbs else 'Normal Glucose Baseline'})</span>
+                </div>
+                """, unsafe_allow_html=True)
 
         with w_tab2:
             c1, c2 = st.columns(2)
             with c1:
                 cp_opts = ["Typical Angina (1)", "Atypical Angina (2)", "Non-Anginal Pain (3)", "Asymptomatic (4)"]
-                cp = st.selectbox("Chest Pain Type", cp_opts, index=1, help="Nature of reported chest discomfort")
+                cp = st.selectbox("Chest Pain Type", cp_opts, index=1)
+                st.markdown(f"""
+                <div class="relevance-card">
+                    <span class="relevance-title">Clinical Relevance of Chest Pain Type:</span>
+                    Chest pain classification differentiates ischemic coronary discomfort from non-cardiac causes. Asymptomatic presentation with CAD is silent ischemia.
+                    <span class="relevance-norm">Classification: 1=Typical, 2=Atypical, 3=Non-anginal, 4=Asymptomatic</span>
+                    <span class="relevance-user">Current Value Analysis: {cp} ({'High Correlation with CAD' if 'Asymptomatic' in cp or 'Typical' in cp else 'Moderate Correlation'})</span>
+                </div>
+                """, unsafe_allow_html=True)
+
                 restecg_opts = ["Normal (0)", "ST-T Wave Abnormality (1)", "Left Ventricular Hypertrophy (2)"]
-                restecg = st.selectbox("Resting ECG Results", restecg_opts, index=0, help="Resting electrocardiogram readings")
+                restecg = st.selectbox("Resting ECG Results", restecg_opts, index=0)
+                st.markdown(f"""
+                <div class="relevance-card">
+                    <span class="relevance-title">Clinical Relevance of Resting ECG:</span>
+                    Resting ECG evaluates baseline cardiac conduction. ST-T wave changes indicate ischemic repolarization anomalies; LV hypertrophy reflects long-term hypertensive strain.
+                    <span class="relevance-norm">Reference: 0=Normal, 1=ST-T Abnormality, 2=LV Hypertrophy</span>
+                    <span class="relevance-user">Current Value Analysis: {restecg} ({'Pathological Conduction Abnormality' if '0' not in restecg else 'Unremarkable Baseline ECG'})</span>
+                </div>
+                """, unsafe_allow_html=True)
+
             with c2:
-                thalach = st.number_input("Max Heart Rate Achieved (bpm)", 60, 230, st.session_state.get('wiz_thalach', 150), help="Peak heart rate during exertion")
-                exang = st.selectbox("Exercise Induced Angina", ["No", "Yes"], index=0 if st.session_state.get('wiz_exang', 'No') == "No" else 1, help="Angina experienced during exercise")
+                thalach = st.number_input("Max Heart Rate Achieved (bpm)", 60, 230, st.session_state.get('wiz_thalach', 150))
+                st.markdown(f"""
+                <div class="relevance-card">
+                    <span class="relevance-title">Clinical Relevance of Max Heart Rate:</span>
+                    Maximum achieved heart rate during stress testing measures chronotropic reserve. Failure to achieve age-predicted max HR (220 - age) correlates with impaired cardiac reserve.
+                    <span class="relevance-norm">Normal Reference: 220 minus patient age (Target ~150-180 bpm)</span>
+                    <span class="relevance-user">Current Value Analysis: {thalach} bpm ({'Impaired Chronotropic Reserve' if thalach < 130 else 'Good Exertional Reserve'})</span>
+                </div>
+                """, unsafe_allow_html=True)
+
+                exang = st.selectbox("Exercise Induced Angina", ["No", "Yes"], index=0 if st.session_state.get('wiz_exang', 'No') == "No" else 1)
+                st.markdown(f"""
+                <div class="relevance-card">
+                    <span class="relevance-title">Clinical Relevance of Exercise Angina:</span>
+                    Angina precipitated specifically by exercise indicates localized epicardial coronary artery stenosis restricting demand-induced flow increase.
+                    <span class="relevance-norm">Reference: Yes = 1 (Ischemic Indicator), No = 0</span>
+                    <span class="relevance-user">Current Value Analysis: {exang} ({'Positive for Exertional Ischemia' if exang == 'Yes' else 'Negative for Exercise Angina'})</span>
+                </div>
+                """, unsafe_allow_html=True)
 
         with w_tab3:
             c1, c2 = st.columns(2)
             with c1:
-                oldpeak = st.slider("Exercise ST Depression (oldpeak mm)", 0.0, 6.2, float(st.session_state.get('wiz_oldpeak', 1.0)), step=0.1, help="ST depression induced by exercise relative to rest")
+                oldpeak = st.slider("Exercise ST Depression (oldpeak mm)", 0.0, 6.2, float(st.session_state.get('wiz_oldpeak', 1.0)), step=0.1)
+                st.markdown(f"""
+                <div class="relevance-card">
+                    <span class="relevance-title">Clinical Relevance of ST Depression (oldpeak):</span>
+                    ST segment depression on ECG during treadmill exertion quantifies subendocardial myocardial ischemia depth relative to rest.
+                    <span class="relevance-norm">Normal Threshold: < 1.0 mm (Normal), >= 1.0 mm (Diagnostic for Ischemia), >= 2.0 mm (Severe Ischemia)</span>
+                    <span class="relevance-user">Current Value Analysis: {oldpeak} mm ({'Severe Ischemic Depression' if oldpeak >= 2.0 else 'Diagnostic Ischemia' if oldpeak >= 1.0 else 'Normal ST Baseline'})</span>
+                </div>
+                """, unsafe_allow_html=True)
+
                 slope_opts = ["Upsloping (1)", "Flat (2)", "Downsloping (3)"]
-                slope = st.selectbox("Slope of Peak Exercise ST Segment", slope_opts, index=0, help="Peak exercise ST segment slope")
+                slope = st.selectbox("Slope of Peak Exercise ST Segment", slope_opts, index=0)
+                st.markdown(f"""
+                <div class="relevance-card">
+                    <span class="relevance-title">Clinical Relevance of ST Slope:</span>
+                    The slope of the ST segment at peak exercise reflects repolarization recovery. Flat or downsloping ST segments strongly correlate with severe multi-vessel CAD.
+                    <span class="relevance-norm">Reference: 1=Upsloping (Benign), 2=Flat (Ischemic), 3=Downsloping (Severe CAD)</span>
+                    <span class="relevance-user">Current Value Analysis: {slope} ({'High-Risk Repolarization Pattern' if '1' not in slope else 'Benign Upsloping Pattern'})</span>
+                </div>
+                """, unsafe_allow_html=True)
+
             with c2:
-                ca = st.slider("Major Vessels Colored by Fluoroscopy (0-3)", 0, 3, int(st.session_state.get('wiz_ca', 0)), help="Number of major vessels highlighted via fluoroscopy")
+                ca = st.slider("Major Vessels Colored by Fluoroscopy (0-3)", 0, 3, int(st.session_state.get('wiz_ca', 0)))
+                st.markdown(f"""
+                <div class="relevance-card">
+                    <span class="relevance-title">Clinical Relevance of Fluoroscopy Vessels (ca):</span>
+                    The count of major coronary arteries (LAD, LCx, RCA) showing calcified stenosis under fluoroscopy directly quantifies anatomic CAD disease burden.
+                    <span class="relevance-norm">Normal Threshold: 0 Vessels (Clean Coronary Arteries), 1-3 Vessels (Multi-vessel CAD)</span>
+                    <span class="relevance-user">Current Value Analysis: {ca} Vessels ({'Multi-Vessel Coronary Artery Disease' if ca > 0 else 'No Stenotic Vessels Detected'})</span>
+                </div>
+                """, unsafe_allow_html=True)
+
                 thal_opts = ["Normal (3)", "Fixed Defect (6)", "Reversible Defect (7)"]
-                thal = st.selectbox("Thalassemia Blood Status", thal_opts, index=0, help="Nuclear stress scan thalassemia status")
+                thal = st.selectbox("Thalassemia Blood Status", thal_opts, index=0)
+                st.markdown(f"""
+                <div class="relevance-card">
+                    <span class="relevance-title">Clinical Relevance of Thalassemia Stress Test:</span>
+                    Nuclear thallium stress imaging reveals myocardial perfusion defects. Reversible defects indicate hibernating ischemic myocardium amenable to revascularization.
+                    <span class="relevance-norm">Reference: 3=Normal, 6=Fixed Defect (Prior Infarct), 7=Reversible Defect (Active Ischemia)</span>
+                    <span class="relevance-user">Current Value Analysis: {thal} ({'Active Reversible Ischemic Defect' if '7' in thal else 'Fixed Infarct Defect' if '6' in thal else 'Normal Myocardial Perfusion'})</span>
+                </div>
+                """, unsafe_allow_html=True)
 
         wiz_submit = st.form_submit_button("Execute Multi-Model Diagnostic Assessment & XAI Analysis", use_container_width=True, type="primary")
 
@@ -488,8 +632,8 @@ if st.session_state.current_workspace == "Patient Intake & XAI":
 
         # Explainable AI (XAI) Risk Waterfall Chart
         st.markdown("---")
-        st.markdown("### Explainable AI (XAI): Risk Contribution Waterfall")
-        st.markdown("This XAI Waterfall chart decomposes the prediction to show exactly how each clinical parameter pushed the risk score up (+) or down (-) relative to the baseline.")
+        st.markdown("### Explainable AI (XAI): Patient Feature Risk Waterfall")
+        st.markdown("This XAI Waterfall chart decomposes the prediction to show exactly how each of your specific clinical parameters pushed the risk score up (+) or down (-) relative to the baseline.")
 
         means = scaler.mean_
         stds = scaler.scale_
@@ -523,73 +667,33 @@ if st.session_state.current_workspace == "Patient Intake & XAI":
         ))
 
         fig_waterfall.update_layout(
-            title="Feature Risk Contribution Push (+ risk increase, - risk reduction)",
+            title="Patient Feature Risk Contribution Push (+ risk increase, - risk reduction)",
             showlegend=False,
             height=380,
             margin=dict(l=20, r=20, t=40, b=20)
         )
         st.plotly_chart(fig_waterfall, use_container_width=True)
 
-        # Biometric Clinical Radar Chart
+        # Patient Vitals vs Normal Range Comparison Chart
         st.markdown("---")
-        st.markdown("### Patient Biometric Radar vs. Healthy Baseline")
+        st.markdown("### Patient Vitals vs. Clinical Normal Reference Range")
 
-        norm_age = min(age / 100.0, 1.0)
-        norm_bp = min(trestbps / 200.0, 1.0)
-        norm_chol = min(chol / 400.0, 1.0)
-        norm_hr = min(thalach / 220.0, 1.0)
-        norm_op = min(oldpeak / 5.0, 1.0)
-        norm_ca = min(ca / 3.0, 1.0)
+        vitals_comp_df = pd.DataFrame({
+            'Vital Parameter': ['Resting Blood Pressure', 'Serum Cholesterol', 'Max Heart Rate (thalach)', 'ST Depression (oldpeak)'],
+            'Patient Value': [trestbps, chol, thalach, oldpeak * 20],  # scaled for display
+            'Clinical Target Threshold': [120, 200, 150, 0.0]
+        })
 
-        categories = ['Age', 'Resting BP', 'Cholesterol', 'Max Heart Rate', 'ST Depression', 'Major Vessels']
-
-        fig_radar = go.Figure()
-        fig_radar.add_trace(go.Scatterpolar(
-            r=[norm_age, norm_bp, norm_chol, norm_hr, norm_op, norm_ca],
-            theta=categories,
-            fill='toself',
-            name='Patient Profile',
-            line_color='#0284c7'
-        ))
-        fig_radar.add_trace(go.Scatterpolar(
-            r=[0.4, 0.5, 0.45, 0.75, 0.0, 0.0],
-            theta=categories,
-            fill='toself',
-            name='Healthy Reference Target',
-            line_color='#10b981'
-        ))
-        fig_radar.update_layout(
-            polar=dict(radialaxis=dict(visible=True, range=[0, 1])),
-            showlegend=True,
-            height=350,
-            margin=dict(l=40, r=40, t=20, b=20)
+        fig_comp = px.bar(
+            vitals_comp_df,
+            x='Vital Parameter',
+            y=['Patient Value', 'Clinical Target Threshold'],
+            barmode='group',
+            title="Comparison of Patient Vitals with Healthy Clinical Reference Values",
+            color_discrete_sequence=['#0284c7', '#10b981']
         )
-        st.plotly_chart(fig_radar, use_container_width=True)
-
-        # Anatomical Risk Mapping Card
-        st.markdown("### Cardiac Anatomical Risk Mapping")
-        st.markdown(f"""
-        <div class="anatomical-card">
-            <h4 style="color:#38bdf8; margin:0 0 1rem 0;">Physiological & Anatomical Status</h4>
-            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
-                <div style="background:rgba(255,255,255,0.05); padding:1rem; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
-                    <div style="font-weight:700; color:#38bdf8;">Coronary Vessels (ca)</div>
-                    <div style="font-size:1.4rem; font-weight:800; margin:0.3rem 0;">{ca} / 3 Vessels</div>
-                    <div style="font-size:0.8rem; color:#94a3b8;">{'Significant Stenosis Detected' if ca > 0 else 'Clear Vessels'}</div>
-                </div>
-                <div style="background:rgba(255,255,255,0.05); padding:1rem; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
-                    <div style="font-weight:700; color:#38bdf8;">ST Segment Ischemia</div>
-                    <div style="font-size:1.4rem; font-weight:800; margin:0.3rem 0;">{oldpeak} mm</div>
-                    <div style="font-size:0.8rem; color:#94a3b8;">{'Exertional Myocardial Depression' if oldpeak > 1.0 else 'Normal ST Baseline'}</div>
-                </div>
-                <div style="background:rgba(255,255,255,0.05); padding:1rem; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
-                    <div style="font-weight:700; color:#38bdf8;">Myocardial Perfusion</div>
-                    <div style="font-size:1.4rem; font-weight:800; margin:0.3rem 0;">{thal}</div>
-                    <div style="font-size:0.8rem; color:#94a3b8;">{'Reversible Ischemic Defect' if thal == 'Reversible Defect (7)' else 'Normal Nuclear Scan'}</div>
-                </div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        fig_comp.update_layout(height=360, margin=dict(l=20, r=20, t=30, b=20))
+        st.plotly_chart(fig_comp, use_container_width=True)
 
 # ---------------------------------------------------------
 # WORKSPACE 2: SIMULATOR & 10-YEAR PROGNOSIS

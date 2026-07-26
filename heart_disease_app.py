@@ -13,13 +13,22 @@ from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier,
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_curve, auc
-import shap
+try:
+    import shap
+    HAS_SHAP = True
+except ImportError:
+    shap = None
+    HAS_SHAP = False
 
-# ReportLab imports for PDF generation
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib import colors
+try:
+    from reportlab.lib.pagesizes import letter
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib import colors
+    HAS_REPORTLAB = True
+except ImportError:
+    HAS_REPORTLAB = False
+
 
 warnings.filterwarnings('ignore')
 
@@ -1359,9 +1368,6 @@ if st.session_state.current_workspace == "Patient Intake & XAI":
         if ca > 0: recs.append(f"Multi-vessel CAD ({ca} vessels fluoroscopy) — revascularisation assessment advised.")
         if not recs: recs.append("Parameters largely within normal reference ranges. Maintain lifestyle risk factor modification.")
 
-        # PDF Generation Button
-        pdf_bytes = generate_pdf_report(active_m, feat, prob, pred, shap_vals, recs)
-
         st.markdown('<div class="rc-result-grid">', unsafe_allow_html=True)
         r1, r2 = st.columns([1.6, 1], gap="medium")
         with r1:
@@ -1378,14 +1384,21 @@ if st.session_state.current_workspace == "Patient Intake & XAI":
             </div>
             """, unsafe_allow_html=True)
 
-            st.markdown("<div style='margin-top:1rem;'></div>", unsafe_allow_html=True)
-            st.download_button(
-                label="📄 Download Official PDF Clinical Assessment Report",
-                data=pdf_bytes,
-                file_name=f"HeartGuard_Clinical_Report_{datetime.now().strftime('%Y%m%d_%H%M')}.pdf",
-                mime="application/pdf",
-                use_container_width=True
-            )
+            if HAS_REPORTLAB:
+                try:
+                    pdf_bytes = generate_pdf_report(active_m, feat, prob, pred, shap_vals, recs)
+                    st.markdown("<div style='margin-top:1rem;'></div>", unsafe_allow_html=True)
+                    st.download_button(
+                        label="📄 Download Official PDF Clinical Assessment Report",
+                        data=pdf_bytes,
+                        file_name=f"HeartGuard_Clinical_Report_{datetime.now().strftime('%Y%m%d_%H%M')}.pdf",
+                        mime="application/pdf",
+                        use_container_width=True
+                    )
+                except Exception:
+                    pass
+
+
 
         with r2:
             fig_g = go.Figure(go.Indicator(

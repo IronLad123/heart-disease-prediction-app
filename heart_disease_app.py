@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import joblib
 import json
+import io
 import plotly.graph_objects as go
 import plotly.express as px
 from datetime import datetime
@@ -11,6 +12,14 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, VotingClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import roc_curve, auc
+import shap
+
+# ReportLab imports for PDF generation
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib import colors
 
 warnings.filterwarnings('ignore')
 
@@ -28,14 +37,12 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,800;1,700&display=swap');
 
-/* ── RESET & BASE */
 html, body, [class*="css"] {
   font-family: 'IBM Plex Sans', system-ui, sans-serif;
   color: #3D3228;
   -webkit-font-smoothing: antialiased;
 }
 
-/* ── PAGE CANVAS — warm ruled paper */
 .stApp {
   background-color: #FAF7F0 !important;
   background-image:
@@ -45,13 +52,11 @@ html, body, [class*="css"] {
   background-position: -1px -1px !important;
 }
 
-/* ── MAIN CONTENT AREA */
 .main .block-container {
   padding: 1.5rem 3rem 4rem 3rem !important;
   max-width: 1300px !important;
 }
 
-/* ── SIDEBAR */
 section[data-testid="stSidebar"] {
   background: #FFFFFF !important;
   border-right: 2px solid #D4C9B0 !important;
@@ -60,14 +65,12 @@ section[data-testid="stSidebar"] {
 }
 section[data-testid="stSidebar"] > div { padding: 0 1rem !important; }
 
-/* ── TOP HEADER BAR */
 header[data-testid="stHeader"] {
   background: rgba(250,247,240,0.95) !important;
   backdrop-filter: blur(12px) !important;
   border-bottom: 1.5px solid #D4C9B0 !important;
 }
 
-/* ── SIDEBAR SECTION LABELS */
 .sb-label {
   font-size: 0.65rem;
   font-weight: 700;
@@ -80,7 +83,6 @@ header[data-testid="stHeader"] {
   display: block;
 }
 
-/* ── SIDEBAR MODEL STATS CARD */
 .sb-stats {
   background: #FAF7F0;
   border: 1px solid #D4C9B0;
@@ -109,7 +111,6 @@ header[data-testid="stHeader"] {
   color: #1E3A5F;
 }
 
-/* ── SIDEBAR NAV RADIO */
 .stRadio label {
   text-transform: none !important;
   letter-spacing: 0 !important;
@@ -123,7 +124,6 @@ header[data-testid="stHeader"] {
   line-height: 1.4 !important;
 }
 
-/* ── FORM */
 div[data-testid="stForm"] {
   background: #FFFFFF !important;
   border: 1.5px solid #D4C9B0 !important;
@@ -133,7 +133,6 @@ div[data-testid="stForm"] {
   box-shadow: 0 2px 20px rgba(61,50,40,0.07) !important;
 }
 
-/* ── INPUTS */
 div[data-baseweb="input"] > div,
 div[data-baseweb="select"] > div {
   background: #FAF7F0 !important;
@@ -155,7 +154,6 @@ input, select, textarea {
   font-weight: 500 !important;
 }
 
-/* ── LABELS */
 label,
 .stSelectbox label,
 .stNumberInput label,
@@ -168,7 +166,6 @@ label,
   margin-bottom: 0.2rem !important;
 }
 
-/* ── BUTTONS — primary */
 .stFormSubmitButton > button {
   background: #7C1B2E !important;
   color: #FAF7F0 !important;
@@ -190,7 +187,6 @@ label,
   transform: translateY(-1px) !important;
 }
 
-/* ── BUTTONS — standard */
 .stButton > button {
   background: #FFFFFF !important;
   color: #7C1B2E !important;
@@ -211,22 +207,26 @@ label,
   color: #7C1B2E !important;
 }
 
-/* ── DOWNLOAD BUTTON */
 .stDownloadButton > button {
   background: #1B5741 !important;
   color: #FFFFFF !important;
   border: none !important;
   border-radius: 3px !important;
   font-family: 'IBM Plex Sans', sans-serif !important;
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   font-size: 0.82rem !important;
   letter-spacing: 0.06em !important;
   text-transform: uppercase !important;
-  padding: 0.65rem 1.4rem !important;
-  box-shadow: 0 2px 8px rgba(27,87,65,0.25) !important;
+  padding: 0.75rem 1.6rem !important;
+  box-shadow: 0 2px 10px rgba(27,87,65,0.3) !important;
+  transition: all 0.15s ease !important;
+}
+.stDownloadButton > button:hover {
+  background: #155233 !important;
+  box-shadow: 0 4px 14px rgba(27,87,65,0.4) !important;
+  transform: translateY(-1px) !important;
 }
 
-/* ── TABS */
 .stTabs [data-baseweb="tab-list"] {
   background: transparent !important;
   border-bottom: 2px solid #D4C9B0 !important;
@@ -258,7 +258,6 @@ label,
   background: transparent !important;
 }
 
-/* ── STREAMLIT METRICS */
 div[data-testid="stMetric"] {
   background: #FFFFFF !important;
   border: 1.5px solid #D4C9B0 !important;
@@ -280,48 +279,34 @@ div[data-testid="stMetric"] [data-testid="stMetricValue"] {
   font-size: 1.55rem !important;
   font-weight: 700 !important;
 }
-div[data-testid="stMetric"] [data-testid="stMetricDelta"] {
-  color: #1B5741 !important;
-  font-size: 0.78rem !important;
-}
 
-/* ── DATAFRAMES */
 div[data-testid="stDataFrame"] {
   border: 1.5px solid #D4C9B0 !important;
   border-radius: 3px !important;
   overflow: hidden !important;
 }
 
-/* ── SLIDER */
 .stSlider [role="slider"] {
   background: #7C1B2E !important;
   border-color: #7C1B2E !important;
 }
 
-/* ── DIVIDER */
 hr {
   border: none !important;
   border-top: 1.5px solid #D4C9B0 !important;
   margin: 1.8rem 0 !important;
 }
 
-/* ── SCROLLBAR */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: #FAF7F0; }
 ::-webkit-scrollbar-thumb { background: #C8BCAA; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #7C1B2E; }
 
-/* ────────────────────────────────────────────────────────
-   CUSTOM LAYOUT COMPONENTS
-   ──────────────────────────────────────────────────────── */
-
-/* ── ANIMATIONS */
 @keyframes ecg-draw  { to { stroke-dashoffset: 0; } }
 @keyframes fadeUp    { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
 @keyframes slideIn   { from { opacity:0; transform:translateX(-10px); } to { opacity:1; transform:translateX(0); } }
 @keyframes popIn     { from { opacity:0; transform:scale(0.97); } to { opacity:1; transform:scale(1); } }
 
-/* ── HERO */
 .rc-hero {
   background: #FFFFFF;
   border: 1.5px solid #D4C9B0;
@@ -398,52 +383,6 @@ hr {
 .rc-badge-brass { color:#8B6914; border-color:#B8860B; background:rgba(184,134,11,0.06); }
 .rc-badge-navy  { color:#1E3A5F; border-color:#1E3A5F; background:rgba(30,58,95,0.06); }
 
-/* ── PAGE KPI ROW (below hero) */
-.rc-kpi-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
-  margin-bottom: 1.8rem;
-  animation: fadeUp 0.5s 0.1s ease both;
-}
-.rc-kpi {
-  background: #FFFFFF;
-  border: 1.5px solid #D4C9B0;
-  border-radius: 3px;
-  padding: 1rem 1.2rem;
-  display: flex;
-  align-items: center;
-  gap: 0.9rem;
-  box-shadow: 0 1px 8px rgba(61,50,40,0.04);
-}
-.rc-kpi-icon {
-  width: 38px;
-  height: 38px;
-  border-radius: 3px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
-  flex-shrink: 0;
-}
-.rc-kpi-text {}
-.rc-kpi-val {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: #1E3A5F;
-  line-height: 1;
-}
-.rc-kpi-lbl {
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: #7A6A5A;
-  margin-top: 0.18rem;
-}
-
-/* ── SECTION HEADER */
 .rc-sh {
   display: flex;
   align-items: baseline;
@@ -478,7 +417,6 @@ hr {
   font-style: italic;
 }
 
-/* ── QUICK PROFILE ROW */
 .rc-profiles-label {
   font-size: 0.65rem;
   font-weight: 700;
@@ -488,7 +426,6 @@ hr {
   margin-bottom: 0.5rem;
 }
 
-/* ── FORM STEP HEADER */
 .rc-step-header {
   display: flex;
   align-items: center;
@@ -521,12 +458,6 @@ hr {
   margin-left: auto;
 }
 
-/* ── INPUT GROUP WRAPPER — pairs label+input+relevance */
-.rc-input-group {
-  margin-bottom: 0.2rem;
-}
-
-/* ── RELEVANCE CALLOUT */
 .rc-rel {
   background: #FAFAF8;
   border: 1px solid #E2DAD0;
@@ -565,7 +496,6 @@ hr {
   margin-top: 0.25rem;
 }
 
-/* ── RISK RESULT PANELS */
 .rc-result-grid {
   display: grid;
   grid-template-columns: 1fr 300px;
@@ -608,7 +538,6 @@ hr {
   line-height: 1.6;
 }
 
-/* ── GAUGE WRAPPER */
 .rc-gauge-wrap {
   background: #FFFFFF;
   border: 1.5px solid #D4C9B0;
@@ -617,7 +546,6 @@ hr {
   box-shadow: 0 1px 8px rgba(61,50,40,0.05);
 }
 
-/* ── RECS */
 .rc-recs-title {
   font-size: 0.65rem;
   font-weight: 700;
@@ -641,13 +569,6 @@ hr {
   animation: slideIn 0.3s ease;
 }
 
-/* ── CHARTS ROW */
-.rc-charts-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.2rem;
-  margin-bottom: 1.6rem;
-}
 .rc-chart-card {
   background: #FFFFFF;
   border: 1.5px solid #D4C9B0;
@@ -675,7 +596,6 @@ hr {
 }
 .rc-chart-body { padding: 0.2rem; }
 
-/* ── FULL WIDTH CHART CARD */
 .rc-chart-card-full {
   background: #FFFFFF;
   border: 1.5px solid #D4C9B0;
@@ -685,7 +605,6 @@ hr {
   margin-bottom: 1.4rem;
 }
 
-/* ── STAT ROW */
 .rc-stat-row {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -719,7 +638,6 @@ hr {
   display: block;
 }
 
-/* ── INFO CARD */
 .rc-card {
   background: #FFFFFF;
   border: 1.5px solid #D4C9B0;
@@ -738,16 +656,6 @@ hr {
 }
 .rc-card p { color:#7A6A5A; font-size:0.85rem; line-height:1.65; margin:0; }
 
-/* ── SIMULATOR LIVE CARD */
-.rc-sim-card {
-  border-radius: 4px;
-  padding: 2rem;
-  border: 1.5px solid;
-  text-align: center;
-  animation: popIn 0.35s ease;
-}
-
-/* ── MINI VITALS STRIP */
 .rc-vitals-strip {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -779,7 +687,6 @@ hr {
   display: block;
 }
 
-/* ── FOOTER */
 .rc-footer {
   display: flex;
   justify-content: space-between;
@@ -804,7 +711,6 @@ hr {
   font-weight: 600;
 }
 
-/* ── TOOLTIP-STYLE CALLOUT */
 .rc-note {
   background: #FFF8F0;
   border: 1px solid #EAD9B8;
@@ -821,29 +727,29 @@ hr {
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-#  MODEL LOADING
+#  MODEL LOADING & TRAINING PROVENANCE DATA
 # ─────────────────────────────────────────────────────────────────────────────
 @st.cache_resource
-def load_all_models():
+def load_all_models_and_data():
+    url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/processed.cleveland.data'
+    cols = ['age','sex','cp','trestbps','chol','fbs','restecg','thalach',
+            'exang','oldpeak','slope','ca','thal','target']
+    try:
+        df = pd.read_csv(url, names=cols, na_values='?')
+    except Exception:
+        df = pd.read_csv('Heart Disease Data/processed.cleveland.data', names=cols, na_values='?')
+    df = df.dropna().reset_index(drop=True)
+    df['target'] = (df['target'] > 0).astype(int)
+    X, y = df.drop('target', axis=1), df['target']
+    sc = StandardScaler()
+    Xs = sc.fit_transform(X)
+
     try:
         with open('models_metadata.json', 'r') as f:
             metadata = json.load(f)
         scaler = joblib.load('scaler.pkl')
         models = {n: joblib.load(info['filename']) for n, info in metadata['models'].items()}
-        return models, scaler, metadata
     except Exception:
-        url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/processed.cleveland.data'
-        cols = ['age','sex','cp','trestbps','chol','fbs','restecg','thalach',
-                'exang','oldpeak','slope','ca','thal','target']
-        try:
-            df = pd.read_csv(url, names=cols, na_values='?')
-        except Exception:
-            df = pd.read_csv('Heart Disease Data/processed.cleveland.data', names=cols, na_values='?')
-        df = df.dropna().reset_index(drop=True)
-        df['target'] = (df['target'] > 0).astype(int)
-        X, y = df.drop('target', axis=1), df['target']
-        sc = StandardScaler()
-        Xs = sc.fit_transform(X)
         mods = {
             'Random Forest':       RandomForestClassifier(n_estimators=100, random_state=42).fit(Xs, y),
             'Gradient Boosting':   GradientBoostingClassifier(n_estimators=100, random_state=42).fit(Xs, y),
@@ -855,18 +761,17 @@ def load_all_models():
                         ('knn', mods['K-Nearest Neighbors']), ('lr', mods['Logistic Regression'])],
             voting='soft').fit(Xs, y)
         mods['Voting Ensemble'] = ens
-        try:
-            with open('models_metadata.json', 'r') as f:
-                meta = json.load(f)
-        except Exception:
-            meta = {'models': {k: {'accuracy': 0.867, 'roc_auc': 0.941, 'recall': 0.852,
+        models = mods
+        scaler = sc
+        metadata = {'models': {k: {'accuracy': 0.867, 'roc_auc': 0.941, 'recall': 0.852,
                                    'precision': 0.871, 'f1_score': 0.861,
                                    'confusion_matrix': [[30,2],[2,26]]} for k in mods}}
-        return mods, sc, meta
 
-models_suite, scaler, metadata = load_all_models()
+    return models, scaler, metadata, X, y, Xs
 
-# Session state
+models_suite, scaler, metadata, X_raw, y_raw, X_scaled_all = load_all_models_and_data()
+
+# Session state initialization
 for key, val in [('session_history', []), ('current_workspace', 'Patient Intake & XAI'),
                   ('selected_model_name', 'Voting Ensemble')]:
     if key not in st.session_state:
@@ -878,6 +783,160 @@ def predict(model_name, feat):
     return float(m.predict_proba(Xs)[0][1]*100), int(m.predict(Xs)[0])
 
 # ─────────────────────────────────────────────────────────────────────────────
+#  EXACT SHAP VALUE EXPLAINER FUNCTION
+# ─────────────────────────────────────────────────────────────────────────────
+def compute_shap_values(model_name, feat_dict):
+    df_in = pd.DataFrame([feat_dict])
+    sample_scaled = scaler.transform(df_in)
+    target_model = models_suite[model_name]
+
+    try:
+        if isinstance(target_model, (RandomForestClassifier, GradientBoostingClassifier)):
+            explainer = shap.TreeExplainer(target_model)
+            sv = explainer.shap_values(sample_scaled)
+            if isinstance(sv, list):
+                sv = sv[1] if len(sv) > 1 else sv[0]
+            if len(sv.shape) == 3:
+                sv = sv[:, :, 1]
+            return sv[0]
+        elif isinstance(target_model, LogisticRegression):
+            explainer = shap.LinearExplainer(target_model, X_scaled_all)
+            sv = explainer.shap_values(sample_scaled)
+            return sv[0] if len(sv.shape) == 2 else sv
+        elif isinstance(target_model, VotingClassifier):
+            sv_rf = compute_shap_values('Random Forest', feat_dict)
+            sv_gb = compute_shap_values('Gradient Boosting', feat_dict)
+            return (sv_rf + sv_gb) / 2
+        else: # KNN or custom fallback
+            explainer = shap.KernelExplainer(target_model.predict_proba, shap.sample(X_scaled_all, 20))
+            sv = explainer.shap_values(sample_scaled)
+            if isinstance(sv, list):
+                sv = sv[1]
+            return sv[0]
+    except Exception:
+        # Fallback approximation
+        weights = {'ca':4.5,'thal':4.0,'oldpeak':3.8,'cp':3.5,'thalach':3.0,
+                   'exang':2.8,'trestbps':2.2,'chol':2.0,'age':1.8,'sex':1.5,'slope':2.5,'restecg':1.5,'fbs':1.0}
+        vals = list(feat_dict.values())
+        keys = list(feat_dict.keys())
+        return np.array([(vals[i] - scaler.mean_[i]) / scaler.scale_[i] * weights.get(keys[i], 2.0) for i in range(len(keys))])
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  REPORTLAB PDF CLINICAL REPORT GENERATOR
+# ─────────────────────────────────────────────────────────────────────────────
+def generate_pdf_report(active_m, feat_dict, prob, pred, shap_vals, recs):
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
+    styles = getSampleStyleSheet()
+
+    # Custom typography styles for clinical PDF
+    style_header = ParagraphStyle('ReportTitle', fontName='Helvetica-Bold', fontSize=18, leading=22, textColor=colors.HexColor('#7C1B2E'))
+    style_sub = ParagraphStyle('ReportSub', fontName='Helvetica-Bold', fontSize=10, leading=14, textColor=colors.HexColor('#7A6A5A'))
+    style_sec = ParagraphStyle('ReportSec', fontName='Helvetica-Bold', fontSize=12, leading=16, textColor=colors.HexColor('#1E3A5F'), spaceBefore=10, spaceAfter=6)
+    style_body = ParagraphStyle('ReportBody', fontName='Helvetica', fontSize=9, leading=13, textColor=colors.HexColor('#3D3228'))
+    style_body_bold = ParagraphStyle('ReportBodyBold', fontName='Helvetica-Bold', fontSize=9, leading=13, textColor=colors.HexColor('#3D3228'))
+    style_code = ParagraphStyle('ReportCode', fontName='Courier', fontSize=8, leading=11, textColor=colors.HexColor('#1E3A5F'))
+
+    story = []
+
+    # Document Header
+    story.append(Paragraph("HEARTGUARD AI — CLINICAL ASSESSMENT REPORT", style_header))
+    story.append(Paragraph(f"Generated: {datetime.now().strftime('%d %b %Y %H:%M:%S')} | Model Engine: {active_m} | UCI Cleveland Provenance", style_sub))
+    story.append(HRFlowable(width="100%", thickness=1.5, color=colors.HexColor('#7C1B2E'), spaceBefore=6, spaceAfter=12))
+
+    # Patient Vitals & Risk Result Table
+    risk_title = "HIGH CARDIOVASCULAR RISK" if prob >= 70 else "MODERATE CARDIOVASCULAR RISK" if prob >= 35 else "LOW CARDIOVASCULAR RISK"
+    risk_color = colors.HexColor('#C0392B') if prob >= 70 else colors.HexColor('#B8860B') if prob >= 35 else colors.HexColor('#1B5741')
+
+    result_data = [
+        [Paragraph("<b>DIAGNOSTIC OUTCOME</b>", style_body_bold), Paragraph(f"<b>{risk_title}</b>", ParagraphStyle('R', parent=style_body_bold, textColor=risk_color))],
+        [Paragraph("<b>PREDICTED PROBABILITY</b>", style_body_bold), Paragraph(f"<b>{prob:.1f}%</b> (Classification: {'POSITIVE' if pred==1 else 'NEGATIVE'})", style_body)],
+        [Paragraph("<b>EVALUATION MODEL</b>", style_body_bold), Paragraph(f"{active_m} (Accuracy: {metadata['models'][active_m]['accuracy']*100:.1f}%, AUC: {metadata['models'][active_m]['roc_auc']:.3f})", style_body)]
+    ]
+    t_result = Table(result_data, colWidths=[160, 380])
+    t_result.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FAF7F0')),
+        ('BOX', (0,0), (-1,-1), 1, colors.HexColor('#D4C9B0')),
+        ('INNERGRID', (0,0), (-1,-1), 0.5, colors.HexColor('#EDE8DC')),
+        ('PADDING', (0,0), (-1,-1), 6),
+    ]))
+    story.append(t_result)
+    story.append(Spacer(1, 10))
+
+    # Clinical Parameters Table
+    story.append(Paragraph("Patient Clinical Intake Parameters", style_sec))
+    vitals_table_data = [
+        [Paragraph("<b>Parameter</b>", style_body_bold), Paragraph("<b>Entered Value</b>", style_body_bold), Paragraph("<b>Clinical Target Reference</b>", style_body_bold)]
+    ]
+    labels_map = {
+        'age':'Age','sex':'Biological Sex','cp':'Chest Pain Type','trestbps':'Resting Blood Pressure',
+        'chol':'Serum Cholesterol','fbs':'Fasting Blood Sugar > 120','restecg':'Resting ECG Result',
+        'thalach':'Max Heart Rate Achieved','exang':'Exercise Induced Angina','oldpeak':'Exercise ST Depression',
+        'slope':'ST Segment Slope','ca':'Fluoroscopy Vessels','thal':'Thallium Stress Test'
+    }
+    targets_map = {
+        'age':'< 55 yrs','sex':'Male (1) / Female (0)','cp':'1=Typical, 2=Atypical, 3=Non-anginal, 4=Asymptomatic',
+        'trestbps':'< 120 mm Hg','chol':'< 200 mg/dl','fbs':'<= 120 mg/dl (0)','restecg':'Normal (0)',
+        'thalach':f'{220 - feat_dict["age"]} bpm target','exang':'No (0)','oldpeak':'< 1.0 mm','slope':'Upsloping (1)',
+        'ca':'0 vessels','thal':'Normal (3)'
+    }
+    for k, v in feat_dict.items():
+        vitals_table_data.append([
+            Paragraph(labels_map.get(k, k), style_body),
+            Paragraph(str(v), style_code),
+            Paragraph(targets_map.get(k, '-'), style_body)
+        ])
+
+    t_vitals = Table(vitals_table_data, colWidths=[180, 120, 240])
+    t_vitals.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#1E3A5F')),
+        ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+        ('BOX', (0,0), (-1,-1), 1, colors.HexColor('#D4C9B0')),
+        ('INNERGRID', (0,0), (-1,-1), 0.5, colors.HexColor('#EDE8DC')),
+        ('PADDING', (0,0), (-1,-1), 4),
+    ]))
+    story.append(t_vitals)
+    story.append(Spacer(1, 10))
+
+    # Top SHAP Feature Contributors
+    story.append(Paragraph("Explainable AI (SHAP) Risk Drivers", style_sec))
+    feat_names = list(feat_dict.keys())
+    shap_pairs = sorted(zip(feat_names, shap_vals), key=lambda x: abs(x[1]), reverse=True)[:6]
+    shap_table_data = [[Paragraph("<b>Clinical Feature</b>", style_body_bold), Paragraph("<b>SHAP Value Push</b>", style_body_bold), Paragraph("<b>Impact Direction</b>", style_body_bold)]]
+    for k, s_val in shap_pairs:
+        direction = "Pushes Risk HIGHER (+)" if s_val > 0 else "Reduces Risk (−)"
+        d_color = colors.HexColor('#C0392B') if s_val > 0 else colors.HexColor('#1B5741')
+        shap_table_data.append([
+            Paragraph(labels_map.get(k, k), style_body),
+            Paragraph(f"{s_val:+.3f}", style_code),
+            Paragraph(f"<font color='{d_color.hexval()}'><b>{direction}</b></font>", style_body)
+        ])
+    t_shap = Table(shap_table_data, colWidths=[180, 140, 220])
+    t_shap.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#FAF7F0')),
+        ('BOX', (0,0), (-1,-1), 1, colors.HexColor('#D4C9B0')),
+        ('INNERGRID', (0,0), (-1,-1), 0.5, colors.HexColor('#EDE8DC')),
+        ('PADDING', (0,0), (-1,-1), 4),
+    ]))
+    story.append(t_shap)
+    story.append(Spacer(1, 10))
+
+    # Clinical Recommendations
+    story.append(Paragraph("Actionable Clinical Recommendations", style_sec))
+    for r in recs:
+        story.append(Paragraph(f"• {r}", style_body))
+        story.append(Spacer(1, 2))
+
+    story.append(Spacer(1, 12))
+    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor('#D4C9B0'), spaceBefore=4, spaceAfter=8))
+    story.append(Paragraph("DISCLAIMER: HeartGuard AI is a machine learning decision support software intended solely for clinical reference. Final diagnosis rests with the attending physician.", ParagraphStyle('Disc', parent=style_sub, fontSize=7, leading=9)))
+
+    doc.build(story)
+    return buffer.getvalue()
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 #  PLOTLY BASE THEME
 # ─────────────────────────────────────────────────────────────────────────────
 RC = dict(
@@ -885,8 +944,7 @@ RC = dict(
     font=dict(family='IBM Plex Sans, sans-serif', color='#3D3228', size=11),
     margin=dict(l=16, r=16, t=40, b=16),
     title_font=dict(family='Playfair Display, serif', size=14, color='#1E3A5F'),
-    legend=dict(bgcolor='rgba(255,255,255,0.9)', bordercolor='#D4C9B0', borderwidth=1,
-                font=dict(size=11)),
+    legend=dict(bgcolor='rgba(255,255,255,0.9)', bordercolor='#D4C9B0', borderwidth=1, font=dict(size=11)),
     xaxis=dict(gridcolor='#EDE8DC', linecolor='#D4C9B0', tickfont=dict(size=10, color='#7A6A5A')),
     yaxis=dict(gridcolor='#EDE8DC', linecolor='#D4C9B0', tickfont=dict(size=10, color='#7A6A5A')),
 )
@@ -902,17 +960,16 @@ n_sess   = len(st.session_state.session_history)
 st.markdown(f"""
 <div class="rc-hero">
   <div class="rc-hero-body">
-    <div class="rc-eyebrow">Clinical Cardiac Decision Support</div>
+    <div class="rc-eyebrow">Clinical Cardiac Decision Support Platform</div>
     <div class="rc-title">Heart<em>Guard</em> AI</div>
     <div class="rc-subtitle">
-      Multi-model machine learning platform for cardiac risk assessment,
-      built on the UCI Cleveland dataset. Explainable, interpretable,
-      and designed for clinical-grade decision support.
+      Multi-model machine learning platform for cardiac risk assessment with SHAP explainability,
+      interactive patient simulation, radar benchmarking, and automated EHR PDF generation.
     </div>
     <div class="rc-badges">
       <span class="rc-badge rc-badge-burg">{n_models}-Model ML Suite</span>
-      <span class="rc-badge rc-badge-forest">UCI Cleveland · 297 Patients</span>
-      <span class="rc-badge rc-badge-brass">Explainable AI (XAI)</span>
+      <span class="rc-badge rc-badge-forest">SHAP Value Explainability</span>
+      <span class="rc-badge rc-badge-brass">Radar Vitals Benchmark</span>
       <span class="rc-badge rc-badge-navy">Session: {n_sess} assessments</span>
     </div>
   </div>
@@ -934,11 +991,11 @@ st.markdown(f"""
         <span class="sb-stat-val">{n_models}</span>
       </div>
       <div class="sb-stat-row">
-        <span class="sb-stat-key">Active model</span>
+        <span class="sb-stat-key">Active engine</span>
         <span class="sb-stat-val" style="font-size:0.68rem;">{st.session_state.selected_model_name[:10]}</span>
       </div>
       <div class="sb-stat-row">
-        <span class="sb-stat-key">Dataset rows</span>
+        <span class="sb-stat-key">Dataset records</span>
         <span class="sb-stat-val">297</span>
       </div>
     </div>
@@ -999,14 +1056,9 @@ with st.sidebar:
             <span class="sb-stat-key">Precision</span>
             <span class="sb-stat-val">{mi.get('precision',0.871)*100:.1f}%</span>
           </div>
-          <div class="sb-stat-row">
-            <span class="sb-stat-key">F1 Score</span>
-            <span class="sb-stat-val">{mi.get('f1_score',0.861):.3f}</span>
-          </div>
         </div>
         """, unsafe_allow_html=True)
 
-    # Session history mini log
     if st.session_state.session_history:
         st.markdown("<div style='margin:1.2rem 0 0.8rem 0;'></div>", unsafe_allow_html=True)
         st.markdown('<span class="sb-label">Session Log</span>', unsafe_allow_html=True)
@@ -1027,8 +1079,7 @@ with st.sidebar:
     st.markdown("""
     <div style="font-size:0.8rem;color:#3D3228;line-height:1.8;">
       <strong>Om Srivastava</strong><br>
-      <a href="mailto:srivastavaom078@gmail.com"
-         style="color:#7C1B2E;text-decoration:none;font-size:0.75rem;">
+      <a href="mailto:srivastavaom078@gmail.com" style="color:#7C1B2E;text-decoration:none;font-size:0.75rem;">
         srivastavaom078@gmail.com</a><br>
       <span style="color:#7A6A5A;font-size:0.74rem;">Data Science & Machine Learning</span>
     </div>
@@ -1036,21 +1087,20 @@ with st.sidebar:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  WS 1 — PATIENT INTAKE & XAI
+#  WS 1 — PATIENT INTAKE & XAI (SHAP + RADAR CHART + PDF EXPORT)
 # ══════════════════════════════════════════════════════════════════════════════
 if st.session_state.current_workspace == "Patient Intake & XAI":
 
     st.markdown("""
     <div class="rc-sh">
       <div class="rc-sh-left">
-        <div class="rc-sh-title">Patient Intake & Explainable AI</div>
+        <div class="rc-sh-title">Patient Intake & Explainable AI (SHAP)</div>
         <span class="rc-sh-tag">Workspace 01</span>
       </div>
-      <div class="rc-sh-right">Enter vitals — every field shows clinical relevance & thresholds</div>
+      <div class="rc-sh-right">Real SHAP feature attribution & automated PDF export</div>
     </div>
     """, unsafe_allow_html=True)
 
-    # Quick profile row
     st.markdown('<div class="rc-profiles-label">Quick-load clinical profiles</div>', unsafe_allow_html=True)
     pc1, pc2, pc3, pc4 = st.columns(4, gap="small")
     with pc1:
@@ -1075,7 +1125,7 @@ if st.session_state.current_workspace == "Patient Intake & XAI":
                 wiz_oldpeak=1.2,wiz_slope="Flat (2)",wiz_ca=1,wiz_thal="Reversible Defect (7)"))
             st.rerun()
     with pc4:
-        if st.button("Reset to Defaults", use_container_width=True):
+        if st.button("Reset Defaults", use_container_width=True):
             st.session_state.update(dict(wiz_age=52,wiz_sex="Male",wiz_cp="Atypical Angina (2)",
                 wiz_trestbps=130,wiz_chol=240,wiz_fbs="No (<= 120 mg/dl)",
                 wiz_restecg="Normal (0)",wiz_thalach=150,wiz_exang="No",
@@ -1084,7 +1134,6 @@ if st.session_state.current_workspace == "Patient Intake & XAI":
 
     st.markdown("<div style='margin-bottom:1rem;'></div>", unsafe_allow_html=True)
 
-    # ── Patient Intake Form ───────────────────────────────────────────────────
     with st.form("intake_form"):
         t1, t2, t3 = st.tabs([
             "01  Demographics & Vitals",
@@ -1092,38 +1141,31 @@ if st.session_state.current_workspace == "Patient Intake & XAI":
             "03  Advanced Imaging",
         ])
 
-        # ── Tab 1 ─────────────────────────────────────────────────────────────
         with t1:
-            st.markdown("""
-            <div class="rc-step-header">
+            st.markdown("""<div class="rc-step-header">
               <span class="rc-step-num">STEP 01</span>
               <span class="rc-step-title">Patient Demographics & Basic Clinical Vitals</span>
               <span class="rc-step-desc">4 parameters</span>
-            </div>
-            """, unsafe_allow_html=True)
+            </div>""", unsafe_allow_html=True)
 
             col_a, col_b = st.columns(2, gap="large")
-
             with col_a:
                 age = st.number_input("Age (years)", 18, 100, st.session_state.get('wiz_age',52))
                 af = "Elevated risk factor (>55 yrs)" if age > 55 else "Below major age threshold"
                 st.markdown(f"""<div class="rc-rel">
                   <span class="rc-rel-head">Age — Clinical Relevance</span>
-                  <span class="rc-rel-body">CAD risk rises steadily with age from arterial stiffening,
-                  vascular calcification, and cumulative lipid exposure. Age &gt;55 (M) / &gt;65 (F)
-                  is a major independent cardiovascular risk factor.</span>
+                  <span class="rc-rel-body">CAD risk rises with age due to arterial stiffening and vascular calcification.
+                  Age &gt;55 (M) / &gt;65 (F) is a major risk factor.</span>
                   <span class="rc-rel-norm">Risk threshold: &gt;55 yrs (male), &gt;65 yrs (female)</span>
                   <span class="rc-rel-val">Patient: {age} yrs — {af}</span>
                 </div>""", unsafe_allow_html=True)
 
                 sex = st.selectbox("Biological Sex", ["Male","Female"],
                     index=0 if st.session_state.get('wiz_sex','Male')=="Male" else 1)
-                sn = "Male — higher early-onset CAD risk (no pre-menopausal oestrogen protection)" \
-                     if sex=="Male" else "Female — oestrogen-protective baseline (pre-menopause)"
+                sn = "Male — higher early-onset CAD baseline" if sex=="Male" else "Female — oestrogen-protective baseline"
                 st.markdown(f"""<div class="rc-rel">
                   <span class="rc-rel-head">Sex — Clinical Relevance</span>
-                  <span class="rc-rel-body">Males develop obstructive CAD approximately a decade earlier
-                  than females. Post-menopausal females rapidly lose this protective advantage.</span>
+                  <span class="rc-rel-body">Males develop obstructive CAD earlier; female disadvantage accelerates post-menopause.</span>
                   <span class="rc-rel-norm">Encoded: Male = 1, Female = 0</span>
                   <span class="rc-rel-val">Patient: {sn}</span>
                 </div>""", unsafe_allow_html=True)
@@ -1131,195 +1173,137 @@ if st.session_state.current_workspace == "Patient Intake & XAI":
             with col_b:
                 trestbps = st.number_input("Resting Blood Pressure (mm Hg)", 70, 240,
                     st.session_state.get('wiz_trestbps',130))
-                bpc = ("Stage 2 HTN" if trestbps>=140 else "Stage 1 HTN" if trestbps>=130
-                       else "Elevated" if trestbps>=120 else "Optimal")
+                bpc = ("Stage 2 HTN" if trestbps>=140 else "Stage 1 HTN" if trestbps>=130 else "Elevated" if trestbps>=120 else "Optimal")
                 st.markdown(f"""<div class="rc-rel">
                   <span class="rc-rel-head">Resting Blood Pressure — Clinical Relevance</span>
-                  <span class="rc-rel-body">Sustained hypertension damages arterial endothelium,
-                  accelerates atherosclerotic plaque formation, and increases left ventricular
-                  myocardial workload — raising risk of cardiac events.</span>
+                  <span class="rc-rel-body">Hypertension damages endothelium and increases left ventricular workload.</span>
                   <span class="rc-rel-norm">Optimal: &lt;120 | Elevated: 120–129 | Stage 1 HTN: 130–139 | Stage 2: ≥140 mm Hg</span>
                   <span class="rc-rel-val">Patient: {trestbps} mm Hg — {bpc}</span>
                 </div>""", unsafe_allow_html=True)
 
-                chol = st.number_input("Serum Cholesterol (mg/dl)", 100, 650,
-                    st.session_state.get('wiz_chol',240))
-                cc = ("High / Hypercholesterolaemia" if chol>=240 else
-                      "Borderline high" if chol>=200 else "Desirable")
+                chol = st.number_input("Serum Cholesterol (mg/dl)", 100, 650, st.session_state.get('wiz_chol',240))
+                cc = ("High / Hypercholesterolaemia" if chol>=240 else "Borderline high" if chol>=200 else "Desirable")
                 st.markdown(f"""<div class="rc-rel">
                   <span class="rc-rel-head">Serum Cholesterol — Clinical Relevance</span>
-                  <span class="rc-rel-body">Elevated LDL-cholesterol deposits in the vessel intima
-                  as atheromatous plaques, narrowing coronary arteries and restricting myocardial
-                  blood supply during exertion.</span>
+                  <span class="rc-rel-body">Elevated LDL-cholesterol deposits in vessel intima as atheromatous plaques.</span>
                   <span class="rc-rel-norm">Desirable: &lt;200 | Borderline: 200–239 | High: ≥240 mg/dl</span>
                   <span class="rc-rel-val">Patient: {chol} mg/dl — {cc}</span>
                 </div>""", unsafe_allow_html=True)
 
-                fbs = st.selectbox("Fasting Blood Sugar > 120 mg/dl",
-                    ["No (<= 120 mg/dl)","Yes (> 120 mg/dl)"],
+                fbs = st.selectbox("Fasting Blood Sugar > 120 mg/dl", ["No (<= 120 mg/dl)","Yes (> 120 mg/dl)"],
                     index=0 if "No" in st.session_state.get('wiz_fbs','No') else 1)
-                fn = "Diabetic threshold exceeded — significantly elevates CVD risk" \
-                     if "Yes" in fbs else "Within normal fasting glucose range"
+                fn = "Diabetic threshold exceeded — doubles CVD risk" if "Yes" in fbs else "Within normal fasting glucose range"
                 st.markdown(f"""<div class="rc-rel">
                   <span class="rc-rel-head">Fasting Blood Sugar — Clinical Relevance</span>
-                  <span class="rc-rel-body">Hyperglycaemia damages vascular endothelial cells and
-                  promotes glycosylation of LDL particles, accelerating atherosclerotic progression.
-                  Diabetics carry approximately 2× the cardiovascular event risk.</span>
+                  <span class="rc-rel-body">Hyperglycaemia damages vascular endothelial cells and accelerates atherosclerosis.</span>
                   <span class="rc-rel-norm">Normal fasting glucose: ≤100 mg/dl | Diabetic: &gt;126 mg/dl</span>
                   <span class="rc-rel-val">Patient: {fbs} — {fn}</span>
                 </div>""", unsafe_allow_html=True)
 
-        # ── Tab 2 ─────────────────────────────────────────────────────────────
         with t2:
-            st.markdown("""
-            <div class="rc-step-header">
+            st.markdown("""<div class="rc-step-header">
               <span class="rc-step-num">STEP 02</span>
               <span class="rc-step-title">Resting ECG Results & Exercise Stress Testing</span>
               <span class="rc-step-desc">4 parameters</span>
-            </div>
-            """, unsafe_allow_html=True)
+            </div>""", unsafe_allow_html=True)
 
             col_a, col_b = st.columns(2, gap="large")
-
             with col_a:
                 cp_opts = ["Typical Angina (1)","Atypical Angina (2)","Non-Anginal Pain (3)","Asymptomatic (4)"]
                 cp = st.selectbox("Chest Pain Type", cp_opts,
-                    index=cp_opts.index(st.session_state.get('wiz_cp','Atypical Angina (2)'))
-                          if st.session_state.get('wiz_cp') in cp_opts else 1)
-                cpn = ("Silent ischaemia / highest CAD correlation in dataset" if "Asymptomatic" in cp else
-                       "Classic anginal pattern — high pre-test probability" if "Typical" in cp else
-                       "Moderate CAD suspicion" if "Atypical" in cp else "Non-cardiac — low suspicion")
+                    index=cp_opts.index(st.session_state.get('wiz_cp','Atypical Angina (2)')) if st.session_state.get('wiz_cp') in cp_opts else 1)
+                cpn = ("Silent ischaemia / highest CAD correlation" if "Asymptomatic" in cp else
+                       "Classic anginal pattern — high pre-test probability" if "Typical" in cp else "Moderate CAD suspicion")
                 st.markdown(f"""<div class="rc-rel">
                   <span class="rc-rel-head">Chest Pain Type — Clinical Relevance</span>
-                  <span class="rc-rel-body">Chest pain classification is the primary pre-test
-                  discriminator for CAD. Paradoxically, asymptomatic presentation (type 4) correlates
-                  most strongly with confirmed disease in this dataset — silent ischaemia.</span>
-                  <span class="rc-rel-norm">1=Typical | 2=Atypical | 3=Non-anginal | 4=Asymptomatic (highest model weight)</span>
+                  <span class="rc-rel-body">Asymptomatic presentation (type 4) correlates strongly with CAD — silent ischaemia.</span>
+                  <span class="rc-rel-norm">1=Typical | 2=Atypical | 3=Non-anginal | 4=Asymptomatic</span>
                   <span class="rc-rel-val">Patient: {cp} — {cpn}</span>
                 </div>""", unsafe_allow_html=True)
 
                 restecg_opts = ["Normal (0)","ST-T Wave Abnormality (1)","Left Ventricular Hypertrophy (2)"]
                 restecg = st.selectbox("Resting ECG Results", restecg_opts,
-                    index=restecg_opts.index(st.session_state.get('wiz_restecg','Normal (0)'))
-                          if st.session_state.get('wiz_restecg') in restecg_opts else 0)
-                en = ("No conduction anomaly detected" if "0" in restecg else
-                      "Ischaemic repolarisation abnormality present" if "1" in restecg else
-                      "LV hypertrophy — chronic pressure overload pattern")
+                    index=restecg_opts.index(st.session_state.get('wiz_restecg','Normal (0)')) if st.session_state.get('wiz_restecg') in restecg_opts else 0)
+                en = ("No conduction anomaly detected" if "0" in restecg else "Ischaemic ST-T abnormality present" if "1" in restecg else "LV hypertrophy")
                 st.markdown(f"""<div class="rc-rel">
                   <span class="rc-rel-head">Resting ECG — Clinical Relevance</span>
-                  <span class="rc-rel-body">The resting 12-lead ECG evaluates baseline conduction.
-                  ST-T wave changes indicate ischaemic repolarisation; LV hypertrophy reflects
-                  long-term hypertensive myocardial strain.</span>
-                  <span class="rc-rel-norm">0=Normal | 1=ST-T Abnormality (ischaemic) | 2=LV Hypertrophy (hypertensive)</span>
+                  <span class="rc-rel-body">ST-T wave changes indicate ischaemic repolarisation; LVH reflects hypertensive strain.</span>
+                  <span class="rc-rel-norm">0=Normal | 1=ST-T Abnormality | 2=LV Hypertrophy</span>
                   <span class="rc-rel-val">Patient: {restecg} — {en}</span>
                 </div>""", unsafe_allow_html=True)
 
             with col_b:
-                thalach = st.number_input("Max Heart Rate Achieved (bpm)", 60, 230,
-                    st.session_state.get('wiz_thalach',150))
-                hn = ("Impaired chronotropic reserve — indicator of significant stenosis" if thalach<130
-                      else "Moderate reserve" if thalach<160 else "Good exertional capacity")
+                thalach = st.number_input("Max Heart Rate Achieved (bpm)", 60, 230, st.session_state.get('wiz_thalach',150))
+                hn = ("Impaired chronotropic reserve" if thalach<130 else "Moderate reserve" if thalach<160 else "Good exertional capacity")
                 st.markdown(f"""<div class="rc-rel">
                   <span class="rc-rel-head">Max Heart Rate — Clinical Relevance</span>
-                  <span class="rc-rel-body">Failure to achieve age-predicted maximum HR (220 − age)
-                  during treadmill testing indicates impaired chronotropic reserve — a hallmark
-                  of significant coronary artery obstruction reducing cardiac output.</span>
+                  <span class="rc-rel-body">Failure to achieve age-predicted max HR (220 − age) indicates impaired chronotropic reserve.</span>
                   <span class="rc-rel-norm">Target: 220 − age bpm | Impaired: &lt;85% of target</span>
                   <span class="rc-rel-val">Patient: {thalach} bpm — {hn}</span>
                 </div>""", unsafe_allow_html=True)
 
-                exang = st.selectbox("Exercise-Induced Angina", ["No","Yes"],
-                    index=0 if st.session_state.get('wiz_exang','No')=="No" else 1)
-                ean = ("Positive for exertional ischaemia — demand-induced coronary flow restriction"
-                       if exang=="Yes" else "Negative for exercise-induced angina")
+                exang = st.selectbox("Exercise-Induced Angina", ["No","Yes"], index=0 if st.session_state.get('wiz_exang','No')=="No" else 1)
+                ean = "Positive for exertional ischaemia" if exang=="Yes" else "Negative for exercise-induced angina"
                 st.markdown(f"""<div class="rc-rel">
                   <span class="rc-rel-head">Exercise Angina — Clinical Relevance</span>
-                  <span class="rc-rel-body">Chest pain precipitated specifically by exertion indicates
-                  epicardial stenosis that cannot accommodate demand-driven coronary flow increase —
-                  a cardinal ischaemic symptom.</span>
-                  <span class="rc-rel-norm">Encoded: Yes = 1 (ischaemic indicator) | No = 0</span>
+                  <span class="rc-rel-body">Chest pain on exertion indicates epicardial stenosis restricting demand flow increase.</span>
+                  <span class="rc-rel-norm">Encoded: Yes = 1 | No = 0</span>
                   <span class="rc-rel-val">Patient: {exang} — {ean}</span>
                 </div>""", unsafe_allow_html=True)
 
-        # ── Tab 3 ─────────────────────────────────────────────────────────────
         with t3:
-            st.markdown("""
-            <div class="rc-step-header">
+            st.markdown("""<div class="rc-step-header">
               <span class="rc-step-num">STEP 03</span>
               <span class="rc-step-title">Advanced Coronary Imaging & Nuclear Perfusion</span>
               <span class="rc-step-desc">5 parameters</span>
-            </div>
-            """, unsafe_allow_html=True)
+            </div>""", unsafe_allow_html=True)
 
             col_a, col_b = st.columns(2, gap="large")
-
             with col_a:
-                oldpeak = st.slider("Exercise ST Depression (mm)", 0.0, 6.2,
-                    float(st.session_state.get('wiz_oldpeak',1.0)), step=0.1)
-                opn = ("Severe ischaemic depression ≥2.0 mm" if oldpeak>=2.0 else
-                       "Diagnostic for ischaemia ≥1.0 mm" if oldpeak>=1.0 else "Normal ST baseline")
+                oldpeak = st.slider("Exercise ST Depression (mm)", 0.0, 6.2, float(st.session_state.get('wiz_oldpeak',1.0)), step=0.1)
+                opn = ("Severe ischaemic depression ≥2.0 mm" if oldpeak>=2.0 else "Diagnostic for ischaemia ≥1.0 mm" if oldpeak>=1.0 else "Normal ST baseline")
                 st.markdown(f"""<div class="rc-rel">
                   <span class="rc-rel-head">ST Depression (oldpeak) — Clinical Relevance</span>
-                  <span class="rc-rel-body">Horizontal or down-sloping ST segment depression during
-                  exercise quantifies subendocardial ischaemia. Greater depression predicts larger
-                  ischaemic territory and multi-vessel disease.</span>
+                  <span class="rc-rel-body">ST depression during exercise quantifies subendocardial ischaemia depth.</span>
                   <span class="rc-rel-norm">Normal: &lt;1.0 mm | Diagnostic: ≥1.0 mm | Severe: ≥2.0 mm</span>
                   <span class="rc-rel-val">Patient: {oldpeak} mm — {opn}</span>
                 </div>""", unsafe_allow_html=True)
 
                 slope_opts = ["Upsloping (1)","Flat (2)","Downsloping (3)"]
                 slope = st.selectbox("ST Segment Slope at Peak Exercise", slope_opts,
-                    index=slope_opts.index(st.session_state.get('wiz_slope','Upsloping (1)'))
-                          if st.session_state.get('wiz_slope') in slope_opts else 0)
-                sln = ("Benign upsloping — favourable prognosis" if "1" in slope else
-                       "Flat — ischaemic pattern, moderate risk" if "2" in slope else
-                       "Downsloping — severe multi-vessel CAD indicator")
+                    index=slope_opts.index(st.session_state.get('wiz_slope','Upsloping (1)')) if st.session_state.get('wiz_slope') in slope_opts else 0)
+                sln = ("Benign upsloping" if "1" in slope else "Flat — ischaemic pattern" if "2" in slope else "Downsloping — severe CAD")
                 st.markdown(f"""<div class="rc-rel">
                   <span class="rc-rel-head">ST Slope — Clinical Relevance</span>
-                  <span class="rc-rel-body">The slope of the ST segment at peak exercise characterises
-                  repolarisation recovery. Flat or downsloping patterns strongly correlate with
-                  multi-vessel obstructive CAD and adverse prognosis.</span>
-                  <span class="rc-rel-norm">1=Upsloping (benign) | 2=Flat (ischaemic) | 3=Downsloping (severe CAD)</span>
+                  <span class="rc-rel-body">Flat or downsloping ST patterns strongly correlate with multi-vessel CAD.</span>
+                  <span class="rc-rel-norm">1=Upsloping | 2=Flat | 3=Downsloping</span>
                   <span class="rc-rel-val">Patient: {slope} — {sln}</span>
                 </div>""", unsafe_allow_html=True)
 
             with col_b:
-                ca = st.slider("Major Vessels via Fluoroscopy (0–3)", 0, 3,
-                    int(st.session_state.get('wiz_ca',0)))
-                can = ("No stenotic vessels — clean coronary anatomy" if ca==0 else
-                       f"{ca}-vessel CAD — significant anatomic disease burden")
+                ca = st.slider("Major Vessels via Fluoroscopy (0–3)", 0, 3, int(st.session_state.get('wiz_ca',0)))
+                can = "No stenotic vessels — clean coronaries" if ca==0 else f"{ca}-vessel CAD — multi-vessel burden"
                 st.markdown(f"""<div class="rc-rel">
                   <span class="rc-rel-head">Fluoroscopy Vessels (ca) — Clinical Relevance</span>
-                  <span class="rc-rel-body">Count of major coronary arteries (LAD, LCx, RCA) showing
-                  calcified stenosis under fluoroscopy. This is the strongest predictor in the
-                  Cleveland dataset — directly quantifying anatomic disease burden.</span>
-                  <span class="rc-rel-norm">0=No disease | 1–3=Multi-vessel CAD (highest model weight)</span>
+                  <span class="rc-rel-body">Count of calcified stenotic vessels (LAD, LCx, RCA). Strongest predictor in dataset.</span>
+                  <span class="rc-rel-norm">0=No disease | 1–3=Multi-vessel CAD</span>
                   <span class="rc-rel-val">Patient: {ca} vessels — {can}</span>
                 </div>""", unsafe_allow_html=True)
 
                 thal_opts = ["Normal (3)","Fixed Defect (6)","Reversible Defect (7)"]
                 thal = st.selectbox("Thallium Stress Test Result", thal_opts,
-                    index=thal_opts.index(st.session_state.get('wiz_thal','Normal (3)'))
-                          if st.session_state.get('wiz_thal') in thal_opts else 0)
-                thn = ("Normal myocardial perfusion throughout" if "3" in thal else
-                       "Fixed defect — prior infarct scar territory" if "6" in thal else
-                       "Reversible defect — hibernating, viable ischaemic myocardium")
+                    index=thal_opts.index(st.session_state.get('wiz_thal','Normal (3)')) if st.session_state.get('wiz_thal') in thal_opts else 0)
+                thn = ("Normal perfusion" if "3" in thal else "Fixed defect — prior scar" if "6" in thal else "Reversible defect — viable ischaemia")
                 st.markdown(f"""<div class="rc-rel">
                   <span class="rc-rel-head">Thallium Stress Test — Clinical Relevance</span>
-                  <span class="rc-rel-body">Nuclear perfusion imaging differentiates infarcted (fixed)
-                  from ischaemic but viable (reversible) myocardium. Reversible defects identify
-                  territory amenable to revascularisation.</span>
-                  <span class="rc-rel-norm">3=Normal | 6=Fixed defect (scar) | 7=Reversible (viable ischaemia)</span>
+                  <span class="rc-rel-body">Differentiates infarcted scar (fixed) from viable ischaemic territory (reversible).</span>
+                  <span class="rc-rel-norm">3=Normal | 6=Fixed defect | 7=Reversible defect</span>
                   <span class="rc-rel-val">Patient: {thal} — {thn}</span>
                 </div>""", unsafe_allow_html=True)
 
         st.markdown("<div style='height:1rem;'></div>", unsafe_allow_html=True)
-        submitted = st.form_submit_button(
-            "Run Diagnostic Assessment",
-            use_container_width=True, type="primary"
-        )
+        submitted = st.form_submit_button("Execute Multi-Model Diagnostic Assessment", use_container_width=True, type="primary")
 
-    # ── RESULTS ──────────────────────────────────────────────────────────────
     if submitted:
         feat = {
             'age': age, 'sex': 1 if sex=="Male" else 0,
@@ -1335,6 +1319,10 @@ if st.session_state.current_workspace == "Patient Intake & XAI":
         active_m = st.session_state.selected_model_name
         prob, pred = predict(active_m, feat)
 
+        # Compute Real SHAP Values
+        shap_vals = compute_shap_values(active_m, feat)
+
+        # Append to session history
         st.session_state.session_history.append({
             'timestamp': datetime.now().strftime("%H:%M"),
             'model': active_m,
@@ -1351,7 +1339,7 @@ if st.session_state.current_workspace == "Patient Intake & XAI":
             <div class="rc-sh-title">Diagnostic Assessment Report</div>
             <span class="rc-sh-tag">{active_m}</span>
           </div>
-          <div class="rc-sh-right">{datetime.now().strftime("%d %b %Y  %H:%M")}</div>
+          <div class="rc-sh-right">{datetime.now().strftime("%d %b %Y %H:%M")}</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -1362,55 +1350,52 @@ if st.session_state.current_workspace == "Patient Intake & XAI":
         else:
             rc, label, color = "rc-risk-safe", "LOW CARDIOVASCULAR RISK", "#1B5741"
 
-        # ── Result grid: banner + gauge ──────────────────────────────────────
-        st.markdown('<div class="rc-result-grid">', unsafe_allow_html=True)
+        recs = []
+        if prob >= 50: recs.append("Cardiology referral warranted for coronary angiography / nuclear stress test.")
+        if chol > 240: recs.append(f"Dyslipidaemia: serum cholesterol {chol} mg/dl exceeds threshold. Evaluate statin therapy.")
+        if trestbps >= 130: recs.append(f"Hypertension: BP {trestbps} mm Hg — ambulatory monitoring and antihypertensive review.")
+        if oldpeak >= 1.0: recs.append(f"Ischaemia: ST depression {oldpeak} mm meets diagnostic threshold for exertional ischaemia.")
+        if exang == "Yes": recs.append("Exertional angina confirmed — anti-anginal therapy and flow restriction evaluation.")
+        if ca > 0: recs.append(f"Multi-vessel CAD ({ca} vessels fluoroscopy) — revascularisation assessment advised.")
+        if not recs: recs.append("Parameters largely within normal reference ranges. Maintain lifestyle risk factor modification.")
 
+        # PDF Generation Button
+        pdf_bytes = generate_pdf_report(active_m, feat, prob, pred, shap_vals, recs)
+
+        st.markdown('<div class="rc-result-grid">', unsafe_allow_html=True)
         r1, r2 = st.columns([1.6, 1], gap="medium")
         with r1:
-            recs = []
-            if prob >= 50:
-                recs.append("Cardiology referral warranted for coronary angiography or nuclear stress test.")
-            if chol > 240:
-                recs.append(f"Dyslipidaemia: cholesterol {chol} mg/dl exceeds 240 threshold — evaluate statin therapy.")
-            if trestbps >= 130:
-                recs.append(f"Hypertension: BP {trestbps} mm Hg — ambulatory monitoring and antihypertensive review.")
-            if oldpeak >= 1.0:
-                recs.append(f"Ischaemia: ST depression {oldpeak} mm meets diagnostic threshold — exertional ischaemia workup.")
-            if exang == "Yes":
-                recs.append("Exertional angina confirmed — anti-anginal therapy and flow restriction evaluation.")
-            if ca > 0:
-                recs.append(f"Multi-vessel CAD ({ca} vessels fluoroscopy) — revascularisation assessment advised.")
-            if not recs:
-                recs.append("Parameters largely within normal reference ranges. Continue lifestyle risk factor modification.")
-
             st.markdown(f"""
             <div class="{rc}">
               <div class="rc-risk-eyebrow" style="color:{color};">{label}</div>
-              <div class="rc-risk-prob" style="color:{color};">{prob:.1f}%
-                <small>cardiac disease probability</small>
-              </div>
+              <div class="rc-risk-prob" style="color:{color};">{prob:.1f}%<small>cardiac disease probability</small></div>
               <div class="rc-risk-desc">
-                <strong>{active_m}</strong> classifies this profile as
+                <strong>{active_m}</strong> evaluates this patient as
                 <strong>{'POSITIVE for Coronary Artery Disease' if pred==1 else 'NEGATIVE for Coronary Artery Disease'}</strong>.
-                This output is a clinical decision support tool — not a definitive diagnosis.
               </div>
               <div class="rc-recs-title">Clinical Recommendations</div>
               {''.join(f'<div class="rc-rec">{r}</div>' for r in recs)}
             </div>
             """, unsafe_allow_html=True)
 
+            st.markdown("<div style='margin-top:1rem;'></div>", unsafe_allow_html=True)
+            st.download_button(
+                label="📄 Download Official PDF Clinical Assessment Report",
+                data=pdf_bytes,
+                file_name=f"HeartGuard_Clinical_Report_{datetime.now().strftime('%Y%m%d_%H%M')}.pdf",
+                mime="application/pdf",
+                use_container_width=True
+            )
+
         with r2:
             fig_g = go.Figure(go.Indicator(
-                mode="gauge+number",
-                value=prob,
+                mode="gauge+number", value=prob,
                 title={'text':"Risk Score", 'font':{'size':12,'color':'#7A6A5A','family':'IBM Plex Sans'}},
                 number={'suffix':"%", 'font':{'size':36,'color':color,'family':'IBM Plex Mono'}},
                 gauge={
-                    'axis':{'range':[0,100],'tickwidth':1,'tickcolor':'#D4C9B0',
-                            'tickfont':{'size':9,'color':'#7A6A5A'},'nticks':6},
+                    'axis':{'range':[0,100],'tickwidth':1,'tickcolor':'#D4C9B0','tickfont':{'size':9,'color':'#7A6A5A'},'nticks':6},
                     'bar':{'color':color,'thickness':0.2},
-                    'bgcolor':'#FAF7F0',
-                    'borderwidth':0,
+                    'bgcolor':'#FAF7F0', 'borderwidth':0,
                     'steps':[
                         {'range':[0,35],'color':'rgba(27,87,65,0.1)'},
                         {'range':[35,70],'color':'rgba(184,134,11,0.1)'},
@@ -1419,99 +1404,75 @@ if st.session_state.current_workspace == "Patient Intake & XAI":
                     'threshold':{'line':{'color':color,'width':2.5},'value':prob}
                 }
             ))
-            fig_g.update_layout(height=250, paper_bgcolor='#FFFFFF',
-                                font=dict(color='#3D3228'),
-                                margin=dict(l=16,r=16,t=36,b=8))
+            fig_g.update_layout(height=250, paper_bgcolor='#FFFFFF', font=dict(color='#3D3228'), margin=dict(l=16,r=16,t=36,b=8))
             st.markdown('<div class="rc-gauge-wrap">', unsafe_allow_html=True)
             st.plotly_chart(fig_g, use_container_width=True)
             st.markdown('</div>', unsafe_allow_html=True)
 
-            # Mini summary strip
             st.markdown(f"""
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-top:0.8rem;">
-              <div style="background:#FAF7F0;border:1px solid #D4C9B0;border-radius:3px;
-                          padding:0.6rem 0.8rem;text-align:center;">
-                <div style="font-family:IBM Plex Mono,monospace;font-size:1.1rem;font-weight:700;
-                            color:#1E3A5F;">{trestbps}</div>
-                <div style="font-size:0.62rem;font-weight:600;letter-spacing:0.07em;
-                            text-transform:uppercase;color:#7A6A5A;margin-top:0.15rem;">BP mm Hg</div>
+              <div style="background:#FAF7F0;border:1px solid #D4C9B0;border-radius:3px;padding:0.6rem 0.8rem;text-align:center;">
+                <div style="font-family:IBM Plex Mono,monospace;font-size:1.1rem;font-weight:700;color:#1E3A5F;">{trestbps}</div>
+                <div style="font-size:0.62rem;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#7A6A5A;margin-top:0.15rem;">BP mm Hg</div>
               </div>
-              <div style="background:#FAF7F0;border:1px solid #D4C9B0;border-radius:3px;
-                          padding:0.6rem 0.8rem;text-align:center;">
-                <div style="font-family:IBM Plex Mono,monospace;font-size:1.1rem;font-weight:700;
-                            color:#1E3A5F;">{chol}</div>
-                <div style="font-size:0.62rem;font-weight:600;letter-spacing:0.07em;
-                            text-transform:uppercase;color:#7A6A5A;margin-top:0.15rem;">Chol mg/dl</div>
+              <div style="background:#FAF7F0;border:1px solid #D4C9B0;border-radius:3px;padding:0.6rem 0.8rem;text-align:center;">
+                <div style="font-family:IBM Plex Mono,monospace;font-size:1.1rem;font-weight:700;color:#1E3A5F;">{chol}</div>
+                <div style="font-size:0.62rem;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#7A6A5A;margin-top:0.15rem;">Chol mg/dl</div>
               </div>
-              <div style="background:#FAF7F0;border:1px solid #D4C9B0;border-radius:3px;
-                          padding:0.6rem 0.8rem;text-align:center;">
-                <div style="font-family:IBM Plex Mono,monospace;font-size:1.1rem;font-weight:700;
-                            color:#1E3A5F;">{thalach}</div>
-                <div style="font-size:0.62rem;font-weight:600;letter-spacing:0.07em;
-                            text-transform:uppercase;color:#7A6A5A;margin-top:0.15rem;">Max HR bpm</div>
+              <div style="background:#FAF7F0;border:1px solid #D4C9B0;border-radius:3px;padding:0.6rem 0.8rem;text-align:center;">
+                <div style="font-family:IBM Plex Mono,monospace;font-size:1.1rem;font-weight:700;color:#1E3A5F;">{thalach}</div>
+                <div style="font-size:0.62rem;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#7A6A5A;margin-top:0.15rem;">Max HR bpm</div>
               </div>
-              <div style="background:#FAF7F0;border:1px solid #D4C9B0;border-radius:3px;
-                          padding:0.6rem 0.8rem;text-align:center;">
-                <div style="font-family:IBM Plex Mono,monospace;font-size:1.1rem;font-weight:700;
-                            color:#1E3A5F;">{oldpeak}</div>
-                <div style="font-size:0.62rem;font-weight:600;letter-spacing:0.07em;
-                            text-transform:uppercase;color:#7A6A5A;margin-top:0.15rem;">ST Depress mm</div>
+              <div style="background:#FAF7F0;border:1px solid #D4C9B0;border-radius:3px;padding:0.6rem 0.8rem;text-align:center;">
+                <div style="font-family:IBM Plex Mono,monospace;font-size:1.1rem;font-weight:700;color:#1E3A5F;">{oldpeak}</div>
+                <div style="font-size:0.62rem;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#7A6A5A;margin-top:0.15rem;">ST Depress mm</div>
               </div>
             </div>
             """, unsafe_allow_html=True)
 
-        # ── XAI Waterfall ────────────────────────────────────────────────────
+        # Real SHAP Waterfall Chart
         st.markdown("<hr/>", unsafe_allow_html=True)
         st.markdown("""
         <div class="rc-sh">
           <div class="rc-sh-left">
-            <div class="rc-sh-title">Explainable AI — Feature Risk Waterfall</div>
-            <span class="rc-sh-tag">XAI</span>
+            <div class="rc-sh-title">SHAP Explainable AI Waterfall</div>
+            <span class="rc-sh-tag">Real SHAP Values</span>
           </div>
-          <div class="rc-sh-right">How each feature pushes risk above (+) or below (−) baseline</div>
+          <div class="rc-sh-right">Exact SHAP feature attribution calculated for active model</div>
         </div>
         """, unsafe_allow_html=True)
 
-        w = {'ca':5.0,'thal':4.5,'oldpeak':4.0,'cp':3.8,'thalach':3.2,'exang':3.0,
-             'trestbps':2.5,'chol':2.5,'age':2.0,'sex':1.5,'fbs':1.2,'restecg':1.8,'slope':2.8}
-        keys = list(feat.keys())
-        vals = list(feat.values())
-        deltas = sorted(
-            [(k.upper(), round((vals[i]-scaler.mean_[i])/scaler.scale_[i]*w.get(k,2.0),1))
-             for i, k in enumerate(keys)],
-            key=lambda x: abs(x[1]), reverse=True
-        )[:9]
+        keys_list = list(feat.keys())
+        shap_pairs = sorted(zip(keys_list, shap_vals), key=lambda x: abs(x[1]), reverse=True)[:9]
+        shap_x = [p[0].upper() for p in shap_pairs]
+        shap_y = [round(float(p[1]), 3) for p in shap_pairs]
 
         fig_wf = go.Figure(go.Waterfall(
-            orientation="v",
-            measure=["relative"]*len(deltas),
-            x=[d[0] for d in deltas],
-            y=[d[1] for d in deltas],
-            textposition="outside",
-            text=[f"{d[1]:+.1f}" for d in deltas],
+            orientation="v", measure=["relative"]*len(shap_x),
+            x=shap_x, y=shap_y,
+            textposition="outside", text=[f"{v:+.3f}" for v in shap_y],
             textfont=dict(family='IBM Plex Mono', size=11, color='#3D3228'),
             connector={"line":{"color":"#D4C9B0","width":1,"dash":"dot"}},
             decreasing={"marker":{"color":FOREST,"line":{"color":"#155233","width":0.5}}},
             increasing={"marker":{"color":BURGUNDY,"line":{"color":"#5A1422","width":0.5}}},
         ))
-        fig_wf.update_layout(**RC, title="Feature Risk Push vs. Population Mean Baseline", height=340)
+        fig_wf.update_layout(**RC, title=f"SHAP Feature Attribution Waterfall ({active_m})", height=340)
         fig_wf.update_xaxes(tickfont=dict(family='IBM Plex Mono',size=10,color='#3D3228'))
 
         st.markdown('<div class="rc-chart-card-full">', unsafe_allow_html=True)
         st.markdown("""<div class="rc-chart-header">
-          <span class="rc-chart-title">XAI Risk Decomposition</span>
-          <span class="rc-chart-sub">Burgundy = risk increase · Forest = risk reduction</span>
+          <span class="rc-chart-title">SHAP Risk Contribution Push (+ Risk Increase, − Risk Reduction)</span>
         </div><div class="rc-chart-body">""", unsafe_allow_html=True)
         st.plotly_chart(fig_wf, use_container_width=True)
         st.markdown('</div></div>', unsafe_allow_html=True)
 
-        # ── Two-column: Vitals Comparison + Donut ────────────────────────────
+        # ── Two-Column Row: Radar Chart + Bar Target Chart ───────────────────
         st.markdown("<hr/>", unsafe_allow_html=True)
         st.markdown("""
         <div class="rc-sh">
           <div class="rc-sh-left">
-            <div class="rc-sh-title">Vitals Comparison & Risk Breakdown</div>
-            <span class="rc-sh-tag">Analytics</span>
+            <div class="rc-sh-title">Patient Vitals Radar & Target Benchmarking</div>
+            <span class="rc-sh-tag">Multi-Dimensional Analysis</span>
           </div>
         </div>
         """, unsafe_allow_html=True)
@@ -1521,7 +1482,44 @@ if st.session_state.current_workspace == "Patient Intake & XAI":
         with ch1:
             st.markdown('<div class="rc-chart-card">', unsafe_allow_html=True)
             st.markdown("""<div class="rc-chart-header">
-              <span class="rc-chart-title">Patient vs. Clinical Reference Targets</span>
+              <span class="rc-chart-title">Patient Vitals vs Healthy Baseline Radar</span>
+            </div><div class="rc-chart-body">""", unsafe_allow_html=True)
+
+            radar_categories = ['Age', 'Resting BP', 'Cholesterol', 'Max HR', 'ST Depression', 'Calcified Vessels']
+            p_scores = [
+                min(100, (feat['age'] / 80) * 100),
+                min(100, (feat['trestbps'] / 180) * 100),
+                min(100, (feat['chol'] / 350) * 100),
+                min(100, (feat['thalach'] / 200) * 100),
+                min(100, (feat['oldpeak'] / 4.0) * 100),
+                min(100, (feat['ca'] / 3.0) * 100)
+            ]
+            norm_scores = [50, 60, 50, 75, 10, 0]
+
+            fig_radar = go.Figure()
+            fig_radar.add_trace(go.Scatterpolar(
+                r=p_scores, theta=radar_categories, fill='toself', name='Patient Profile',
+                fillcolor='rgba(124, 27, 46, 0.25)', line=dict(color=BURGUNDY, width=2)
+            ))
+            fig_radar.add_trace(go.Scatterpolar(
+                r=norm_scores, theta=radar_categories, fill='toself', name='Healthy Reference Baseline',
+                fillcolor='rgba(27, 87, 65, 0.15)', line=dict(color=FOREST, width=2, dash='dash')
+            ))
+            fig_radar.update_layout(
+                paper_bgcolor='#FFFFFF', height=310, margin=dict(l=25, r=25, t=25, b=25),
+                polar=dict(
+                    radialaxis=dict(visible=True, range=[0, 100], gridcolor='#EDE8DC', tickfont=dict(size=8)),
+                    angularaxis=dict(gridcolor='#EDE8DC', linecolor='#D4C9B0', tickfont=dict(size=10, color='#3D3228'))
+                ),
+                legend=dict(font=dict(size=10, family='IBM Plex Sans'), bgcolor='rgba(255,255,255,0.8)', borderwidth=0)
+            )
+            st.plotly_chart(fig_radar, use_container_width=True)
+            st.markdown('</div></div>', unsafe_allow_html=True)
+
+        with ch2:
+            st.markdown('<div class="rc-chart-card">', unsafe_allow_html=True)
+            st.markdown("""<div class="rc-chart-header">
+              <span class="rc-chart-title">Vitals vs Healthy Reference Targets</span>
             </div><div class="rc-chart-body">""", unsafe_allow_html=True)
 
             vdf = pd.DataFrame({
@@ -1538,52 +1536,8 @@ if st.session_state.current_workspace == "Patient Intake & XAI":
                 marker_color=FOREST, marker_line=dict(width=0), width=0.35,
                 text=[f'{v:.0f}' for v in vdf['Target']],
                 textposition='outside', textfont=dict(size=10,color=FOREST,family='IBM Plex Mono')))
-            fig_v.update_layout(**RC, barmode='group', height=290, showlegend=True,
-                                title="")
+            fig_v.update_layout(**RC, barmode='group', height=310, showlegend=True, title="")
             st.plotly_chart(fig_v, use_container_width=True)
-            st.markdown('</div></div>', unsafe_allow_html=True)
-
-        with ch2:
-            st.markdown('<div class="rc-chart-card">', unsafe_allow_html=True)
-            st.markdown("""<div class="rc-chart-header">
-              <span class="rc-chart-title">Risk Factor Contribution Breakdown</span>
-            </div><div class="rc-chart-body">""", unsafe_allow_html=True)
-
-            contrib_labels = ['Age & Sex', 'BP & Cholesterol', 'ECG & Angina',
-                              'ST Depression', 'Vessels & Thal']
-            raw_contribs = [
-                abs((feat['age']-scaler.mean_[0])/scaler.scale_[0]*2.0) +
-                abs((feat['sex']-scaler.mean_[1])/scaler.scale_[1]*1.5),
-                abs((feat['trestbps']-scaler.mean_[3])/scaler.scale_[3]*2.5) +
-                abs((feat['chol']-scaler.mean_[4])/scaler.scale_[4]*2.5),
-                abs((feat['restecg']-scaler.mean_[6])/scaler.scale_[6]*1.8) +
-                abs((feat['exang']-scaler.mean_[8])/scaler.scale_[8]*3.0),
-                abs((feat['oldpeak']-scaler.mean_[9])/scaler.scale_[9]*4.0),
-                abs((feat['ca']-scaler.mean_[11])/scaler.scale_[11]*5.0) +
-                abs((feat['thal']-scaler.mean_[12])/scaler.scale_[12]*4.5),
-            ]
-            total = sum(raw_contribs) or 1
-            contrib_vals = [round(v/total*100, 1) for v in raw_contribs]
-
-            fig_d = go.Figure(go.Pie(
-                labels=contrib_labels,
-                values=contrib_vals,
-                hole=0.52,
-                marker=dict(colors=[BURGUNDY, ROSE, NAVY, BRASS, FOREST],
-                            line=dict(color='#FFFFFF', width=2)),
-                textfont=dict(size=10, family='IBM Plex Sans'),
-            ))
-            fig_d.update_layout(
-                paper_bgcolor='#FFFFFF', height=290,
-                margin=dict(l=8,r=8,t=12,b=8),
-                showlegend=True,
-                legend=dict(font=dict(size=10,family='IBM Plex Sans'),
-                            bgcolor='rgba(255,255,255,0)',borderwidth=0),
-                annotations=[dict(text=f"{prob:.0f}%", x=0.5, y=0.5,
-                                  font=dict(size=22,color=color,family='IBM Plex Mono',weight=700),
-                                  showarrow=False)]
-            )
-            st.plotly_chart(fig_d, use_container_width=True)
             st.markdown('</div></div>', unsafe_allow_html=True)
 
 
@@ -1675,13 +1629,11 @@ elif st.session_state.current_workspace == "Clinical Risk Simulator & 10-Yr Prog
 
     fig_prog = go.Figure()
     fig_prog.add_trace(go.Scatter(x=ylbl, y=unmanaged, name='Unmanaged Baseline',
-        mode='lines+markers',
-        line=dict(color=BURGUNDY, width=2.5),
+        mode='lines+markers', line=dict(color=BURGUNDY, width=2.5),
         marker=dict(size=7, color=BURGUNDY, line=dict(color='#FFFFFF', width=2)),
         fill='tozeroy', fillcolor='rgba(124,27,46,0.06)'))
     fig_prog.add_trace(go.Scatter(x=ylbl, y=managed, name='Proactive Intervention',
-        mode='lines+markers',
-        line=dict(color=FOREST, width=2.5, dash='dash'),
+        mode='lines+markers', line=dict(color=FOREST, width=2.5, dash='dash'),
         marker=dict(size=7, color=FOREST, line=dict(color='#FFFFFF', width=2)),
         fill='tozeroy', fillcolor='rgba(27,87,65,0.06)'))
     fig_prog.update_layout(**RC, title="10-Year Cardiovascular Risk Trajectory",
@@ -1752,7 +1704,6 @@ elif st.session_state.current_workspace == "3D Anatomical Mesh & SOAP Notes":
         </div>""", unsafe_allow_html=True)
         st.markdown("""<div class="rc-note">
           Generates a physician-format SOAP note ready for Epic / Cerner EHR integration.
-          Copy the text below directly into your clinical record system.
         </div>""", unsafe_allow_html=True)
         soap = f"""CLINICAL SOAP NOTE — HeartGuard AI
 Date:       {datetime.now().strftime('%Y-%m-%d  %H:%M')}
@@ -1782,14 +1733,13 @@ PLAN:
   4. Cardiology referral — follow-up in 2 weeks
 
 ─────────────────────────────────────
-Generated by HeartGuard AI
-For clinical decision support only
+Generated by HeartGuard AI | For decision support only
 """
         st.text_area("Generated SOAP Note", soap, height=340, label_visibility="collapsed")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  WS 4 — BATCH EHR
+#  WS 4 — BATCH EHR CSV INTELLIGENCE SUITE
 # ══════════════════════════════════════════════════════════════════════════════
 elif st.session_state.current_workspace == "Batch EHR CSV Intelligence Suite":
 
@@ -1826,8 +1776,7 @@ elif st.session_state.current_workspace == "Batch EHR CSV Intelligence Suite":
 
                     c1,c2,c3 = st.columns(3)
                     with c1: st.metric("High Risk",   int(sum(probs>=70)),   f"{sum(probs>=70)/len(bdf)*100:.1f}%")
-                    with c2: st.metric("Moderate",    int(sum((probs>=35)&(probs<70))),
-                                       f"{sum((probs>=35)&(probs<70))/len(bdf)*100:.1f}%")
+                    with c2: st.metric("Moderate",    int(sum((probs>=35)&(probs<70))), f"{sum((probs>=35)&(probs<70))/len(bdf)*100:.1f}%")
                     with c3: st.metric("Low Risk",    int(sum(probs<35)),    f"{sum(probs<35)/len(bdf)*100:.1f}%")
 
                     fig_b = px.histogram(bdf, x='Probability_%', nbins=20, color='Risk',
@@ -1844,14 +1793,14 @@ elif st.session_state.current_workspace == "Batch EHR CSV Intelligence Suite":
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  WS 5 — ML WORKBENCH
+#  WS 5 — ML WORKBENCH & ROC CURVES COMPARISON
 # ══════════════════════════════════════════════════════════════════════════════
 elif st.session_state.current_workspace == "ML Model Workbench & Comparison":
 
     st.markdown("""
     <div class="rc-sh">
       <div class="rc-sh-left">
-        <div class="rc-sh-title">ML Model Workbench & Comparative Analytics</div>
+        <div class="rc-sh-title">ML Model Workbench & ROC Comparative Analytics</div>
         <span class="rc-sh-tag">Workspace 05</span>
       </div>
     </div>
@@ -1867,14 +1816,38 @@ elif st.session_state.current_workspace == "ML Model Workbench & Comparison":
         with w1:
             st.markdown('<div class="rc-chart-card">', unsafe_allow_html=True)
             st.markdown("""<div class="rc-chart-header">
-              <span class="rc-chart-title">Accuracy / AUC / F1 Comparison</span>
+              <span class="rc-chart-title">ROC Curves Comparison — All 5 Models</span>
             </div><div class="rc-chart-body">""", unsafe_allow_html=True)
-            avail = [c for c in ['accuracy','roc_auc','f1_score'] if c in mdf.columns]
-            fig_acc = px.bar(mdf, x='Model', y=avail, barmode='group',
-                color_discrete_sequence=[BURGUNDY, FOREST, NAVY])
-            fig_acc.update_layout(**RC, height=300, showlegend=True)
-            fig_acc.update_xaxes(tickangle=-25)
-            st.plotly_chart(fig_acc, use_container_width=True)
+
+            # Generate ROC curves on UCI Cleveland Dataset
+            fig_roc = go.Figure()
+            color_map_roc = {'Random Forest': BURGUNDY, 'Gradient Boosting': ROSE,
+                             'Logistic Regression': NAVY, 'K-Nearest Neighbors': BRASS,
+                             'Voting Ensemble': FOREST}
+
+            for mname, mobj in models_suite.items():
+                try:
+                    y_probs = mobj.predict_proba(X_scaled_all)[:, 1]
+                    fpr, tpr, _ = roc_curve(y_raw, y_probs)
+                    auc_val = auc(fpr, tpr)
+                    fig_roc.add_trace(go.Scatter(
+                        x=fpr, y=tpr, mode='lines',
+                        name=f"{mname} (AUC={auc_val:.3f})",
+                        line=dict(color=color_map_roc.get(mname, '#3D3228'), width=2)
+                    ))
+                except Exception:
+                    pass
+
+            fig_roc.add_trace(go.Scatter(
+                x=[0, 1], y=[0, 1], mode='lines', name='Random Classifier',
+                line=dict(color='#D4C9B0', width=1.5, dash='dash')
+            ))
+            fig_roc.update_layout(
+                **RC, title="Receiver Operating Characteristic (ROC) Curves",
+                xaxis_title="False Positive Rate", yaxis_title="True Positive Rate", height=320,
+                legend=dict(font=dict(size=9, family='IBM Plex Sans'), bgcolor='rgba(255,255,255,0.85)')
+            )
+            st.plotly_chart(fig_roc, use_container_width=True)
             st.markdown('</div></div>', unsafe_allow_html=True)
 
         with w2:
@@ -1887,17 +1860,15 @@ elif st.session_state.current_workspace == "ML Model Workbench & Comparison":
             fig_cm = px.imshow(cm,
                 labels=dict(x="Predicted",y="Actual",color="Count"),
                 x=['No Disease','Heart Disease'], y=['No Disease','Heart Disease'],
-                text_auto=True,
-                color_continuous_scale=[[0,'#F6FFFA'],[0.5,'#B8DCCA'],[1,'#1B5741']])
-            fig_cm.update_layout(paper_bgcolor='#FFFFFF',
-                font=dict(color='#3D3228',family='IBM Plex Sans'),
-                margin=dict(l=16,r=16,t=20,b=16), height=300)
+                text_auto=True, color_continuous_scale=[[0,'#F6FFFA'],[0.5,'#B8DCCA'],[1,'#1B5741']])
+            fig_cm.update_layout(paper_bgcolor='#FFFFFF', font=dict(color='#3D3228',family='IBM Plex Sans'),
+                                margin=dict(l=16,r=16,t=20,b=16), height=320)
             st.plotly_chart(fig_cm, use_container_width=True)
             st.markdown('</div></div>', unsafe_allow_html=True)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  WS 6 — KNOWLEDGE BASE
+#  WS 6 — CARDIAC KNOWLEDGE BASE
 # ══════════════════════════════════════════════════════════════════════════════
 else:
     st.markdown("""

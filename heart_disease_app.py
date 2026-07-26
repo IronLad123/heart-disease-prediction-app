@@ -22,13 +22,91 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom Ultra-Modern Cyber-Clinical Color Palette Design System
+# Global Full-App CSS Overrides (Transforms entire Streamlit app background, sidebar, header, inputs & controls)
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
     html, body, [class*="css"] {
         font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    }
+
+    /* Full App Background Override */
+    .stApp {
+        background-color: #090d16 !important;
+        color: #f8fafc !important;
+    }
+
+    /* Sidebar Background Override */
+    section[data-testid="stSidebar"] {
+        background-color: #0f172a !important;
+        border-right: 1px solid #1e293b !important;
+    }
+
+    /* Header Transparent Glass Override */
+    header[data-testid="stHeader"] {
+        background: rgba(9, 13, 22, 0.8) !important;
+        backdrop-filter: blur(12px) !important;
+    }
+
+    /* Form Background & Border Overrides */
+    div[data-testid="stForm"] {
+        background-color: #1e293b !important;
+        border: 1px solid #334155 !important;
+        border-radius: 20px !important;
+        padding: 2rem !important;
+    }
+
+    /* Input Fields (Number, Text, Select) Overrides */
+    div[data-baseweb="input"], div[data-baseweb="select"] {
+        background-color: #0f172a !important;
+        border: 1px solid #334155 !important;
+        border-radius: 12px !important;
+        color: #f8fafc !important;
+    }
+
+    input, select {
+        color: #f8fafc !important;
+    }
+
+    /* Labels & Markdown Text Overrides */
+    label, .stMarkdown, p, span, h1, h2, h3, h4, h5, h6 {
+        color: #f8fafc !important;
+    }
+
+    /* Tabs Styling Overrides */
+    .stTabs [data-baseweb="tab-list"] {
+        background-color: #0f172a !important;
+        border-radius: 14px !important;
+        padding: 0.4rem !important;
+        gap: 0.5rem !important;
+    }
+
+    .stTabs [data-baseweb="tab"] {
+        border-radius: 10px !important;
+        color: #94a3b8 !important;
+        font-weight: 600 !important;
+    }
+
+    .stTabs [aria-selected="true"] {
+        background-color: #38bdf8 !important;
+        color: #090d16 !important;
+    }
+
+    /* Button Styling Overrides */
+    .stButton>button, .stDownloadButton>button, .stFormSubmitButton>button {
+        background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%) !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 12px !important;
+        font-weight: 700 !important;
+        padding: 0.75rem 1.5rem !important;
+        box-shadow: 0 10px 20px -5px rgba(56, 189, 248, 0.3) !important;
+        transition: all 0.2s ease !important;
+    }
+    .stButton>button:hover, .stDownloadButton>button:hover, .stFormSubmitButton>button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 15px 25px -5px rgba(56, 189, 248, 0.5) !important;
     }
 
     @keyframes ecg-dash {

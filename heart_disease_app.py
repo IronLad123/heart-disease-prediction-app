@@ -1649,8 +1649,21 @@ elif st.session_state.current_workspace == "Clinical Risk Simulator & 10-Yr Prog
         mode='lines+markers', line=dict(color=FOREST, width=2.5, dash='dash'),
         marker=dict(size=7, color=FOREST, line=dict(color='#FFFFFF', width=2)),
         fill='tozeroy', fillcolor='rgba(27,87,65,0.06)'))
-    fig_prog.update_layout(**RC, title="10-Year Cardiovascular Risk Trajectory",
-                           yaxis_title="Predicted Risk (%)", xaxis_title="Timeline", height=360)
+    fig_prog.update_layout(
+        paper_bgcolor='#FFFFFF', plot_bgcolor='#FAF7F0',
+        font=dict(family='IBM Plex Sans, sans-serif', color='#3D3228', size=11),
+        margin=dict(l=16, r=16, t=40, b=16),
+        title=dict(text="10-Year Cardiovascular Risk Trajectory",
+                   font=dict(family='Playfair Display, serif', size=14, color='#1E3A5F')),
+        xaxis=dict(title="Timeline", gridcolor='#EDE8DC',
+                   linecolor='#D4C9B0', tickfont=dict(size=10, color='#7A6A5A')),
+        yaxis=dict(title="Predicted Risk (%)", gridcolor='#EDE8DC',
+                   linecolor='#D4C9B0', tickfont=dict(size=10, color='#7A6A5A')),
+        legend=dict(bgcolor='rgba(255,255,255,0.9)', bordercolor='#D4C9B0',
+                    borderwidth=1, font=dict(size=11)),
+        height=360
+    )
+
     st.markdown('<div class="rc-chart-card-full">', unsafe_allow_html=True)
     st.markdown("""<div class="rc-chart-header">
       <span class="rc-chart-title">10-Year Risk Trajectory</span>
@@ -1856,10 +1869,20 @@ elif st.session_state.current_workspace == "ML Model Workbench & Comparison":
                 line=dict(color='#D4C9B0', width=1.5, dash='dash')
             ))
             fig_roc.update_layout(
-                **RC, title="Receiver Operating Characteristic (ROC) Curves",
-                xaxis_title="False Positive Rate", yaxis_title="True Positive Rate", height=320,
-                legend=dict(font=dict(size=9, family='IBM Plex Sans'), bgcolor='rgba(255,255,255,0.85)')
+                paper_bgcolor='#FFFFFF', plot_bgcolor='#FAF7F0',
+                font=dict(family='IBM Plex Sans, sans-serif', color='#3D3228', size=11),
+                margin=dict(l=16, r=16, t=40, b=16),
+                title=dict(text="Receiver Operating Characteristic (ROC) Curves",
+                           font=dict(family='Playfair Display, serif', size=14, color='#1E3A5F')),
+                xaxis=dict(title="False Positive Rate", gridcolor='#EDE8DC',
+                           linecolor='#D4C9B0', tickfont=dict(size=10, color='#7A6A5A')),
+                yaxis=dict(title="True Positive Rate", gridcolor='#EDE8DC',
+                           linecolor='#D4C9B0', tickfont=dict(size=10, color='#7A6A5A')),
+                height=320,
+                legend=dict(font=dict(size=9, family='IBM Plex Sans'),
+                            bgcolor='rgba(255,255,255,0.85)', bordercolor='#D4C9B0', borderwidth=1)
             )
+
             st.plotly_chart(fig_roc, use_container_width=True)
             st.markdown('</div></div>', unsafe_allow_html=True)
 

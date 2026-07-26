@@ -17,8 +17,7 @@ warnings.filterwarnings('ignore')
 
 # Page Configuration
 st.set_page_config(
-    page_title="HeartGuard AI Ultra | Next-Gen Cardiac Risk Intelligence Platform",
-    page_icon="❤️",
+    page_title="HeartGuard AI | Clinical Cardiac Risk Intelligence Platform",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -206,7 +205,7 @@ models_suite, scaler, metadata = load_all_models()
 if 'session_history' not in st.session_state:
     st.session_state.session_history = []
 if 'current_workspace' not in st.session_state:
-    st.session_state.current_workspace = "🧙‍♂️ Patient Intake Wizard & XAI"
+    st.session_state.current_workspace = "Patient Intake & XAI"
 if 'selected_model_name' not in st.session_state:
     st.session_state.selected_model_name = "Voting Ensemble"
 
@@ -219,32 +218,32 @@ st.markdown("""
                   fill="none" stroke="#22d3ee" stroke-width="3" stroke-dasharray="1000" stroke-dashoffset="0" style="animation: ecg-dash 10s linear infinite;" />
         </svg>
     </div>
-    <div class="hero-title-text">HeartGuard AI Ultra</div>
-    <div class="hero-sub-text">Next-Generation Clinical Explainable AI (XAI) & 3D Cardiac Intelligence Suite</div>
+    <div class="hero-title-text">HeartGuard AI</div>
+    <div class="hero-sub-text">Clinical Multi-Model Decision Support & Cardiac Intelligence Platform</div>
     <div style="display:flex; justify-content:center; gap:0.8rem; flex-wrap:wrap;">
-        <span class="badge-pill badge-cyan">🔍 SHAP Explainable AI (XAI) Waterfall</span>
-        <span class="badge-pill badge-emerald">🫀 3D Anatomical Cardiac Mesh</span>
-        <span class="badge-pill badge-purple">📝 Automated EHR SOAP Note Generator</span>
+        <span class="badge-pill badge-cyan">5 Multi-Model ML Ensemble</span>
+        <span class="badge-pill badge-emerald">Real-Time Clinical Intervention Simulator</span>
+        <span class="badge-pill badge-purple">UCI Cleveland Dataset Provenance</span>
     </div>
 </div>
 """, unsafe_allow_html=True)
 
 # Sidebar Navigation & Model Selector
 with st.sidebar:
-    st.markdown("### 🏥 Clinical Workspaces")
+    st.markdown("### Clinical Navigation")
     workspaces = [
-        "🧙‍♂️ Patient Intake Wizard & XAI",
-        "⚡ Clinical Simulator & 10-Yr Prognosis",
-        "🫀 3D Anatomical Mesh & SOAP Notes",
-        "📂 EHR Batch CSV Intelligence Suite",
-        "🔬 ML Model Workbench & Comparison",
-        "📚 Cardiac Knowledge Base & Dataset"
+        "Patient Intake & XAI",
+        "Clinical Risk Simulator & 10-Yr Prognosis",
+        "3D Anatomical Mesh & SOAP Notes",
+        "Batch EHR CSV Intelligence Suite",
+        "ML Model Workbench & Comparison",
+        "Cardiac Knowledge Base & Dataset"
     ]
     selected_ws = st.radio("Select Workspace:", workspaces, index=workspaces.index(st.session_state.current_workspace) if st.session_state.current_workspace in workspaces else 0)
     st.session_state.current_workspace = selected_ws
 
     st.markdown("---")
-    st.markdown("### 🤖 Active ML Inference Engine")
+    st.markdown("### Active ML Inference Engine")
     if metadata and 'models' in metadata:
         model_names = list(metadata['models'].keys())
         active_model = st.selectbox("Select ML Model:", model_names, index=model_names.index(st.session_state.selected_model_name) if st.session_state.selected_model_name in model_names else len(model_names)-1)
@@ -259,7 +258,7 @@ with st.sidebar:
         """)
 
     st.markdown("---")
-    st.markdown("### 👨‍💻 Platform Author")
+    st.markdown("### Platform Author")
     st.markdown("""
     **Om Srivastava**  
     [srivastavaom078@gmail.com](mailto:srivastavaom078@gmail.com)  
@@ -276,23 +275,23 @@ def get_prediction(model_name, features_dict):
     return prob, pred
 
 # ---------------------------------------------------------
-# WORKSPACE 1: PATIENT INTAKE WIZARD & XAI
+# WORKSPACE 1: PATIENT INTAKE & XAI
 # ---------------------------------------------------------
-if st.session_state.current_workspace == "🧙‍♂️ Patient Intake Wizard & XAI":
-    st.markdown("## 🧙‍♂️ Patient Intake Wizard & Explainable AI (XAI)")
+if st.session_state.current_workspace == "Patient Intake & XAI":
+    st.markdown("## Patient Intake & Explainable AI (XAI)")
 
-    # Preset Profile Avatars
-    st.markdown("##### ⚡ Quick Load Clinical Profiles")
+    # Quick Preset Profiles
+    st.markdown("##### Quick Load Clinical Profiles")
     p1, p2, p3, p4 = st.columns(4)
     
     with p1:
-        if st.button("🔴 Critical High Risk Profile", use_container_width=True):
+        if st.button("High Risk Profile", use_container_width=True):
             st.session_state.wiz_age = 67
             st.session_state.wiz_sex = "Male"
             st.session_state.wiz_cp = "Asymptomatic (4)"
             st.session_state.wiz_trestbps = 160
             st.session_state.wiz_chol = 286
-            st.session_state.wiz_fbs = "No (≤ 120 mg/dl)"
+            st.session_state.wiz_fbs = "No (<= 120 mg/dl)"
             st.session_state.wiz_restecg = "Left Ventricular Hypertrophy (2)"
             st.session_state.wiz_thalach = 108
             st.session_state.wiz_exang = "Yes"
@@ -303,13 +302,13 @@ if st.session_state.current_workspace == "🧙‍♂️ Patient Intake Wizard & 
             st.rerun()
 
     with p2:
-        if st.button("🟢 Low Risk Healthy Profile", use_container_width=True):
+        if st.button("Low Risk Healthy Profile", use_container_width=True):
             st.session_state.wiz_age = 37
             st.session_state.wiz_sex = "Female"
             st.session_state.wiz_cp = "Typical Angina (1)"
             st.session_state.wiz_trestbps = 118
             st.session_state.wiz_chol = 190
-            st.session_state.wiz_fbs = "No (≤ 120 mg/dl)"
+            st.session_state.wiz_fbs = "No (<= 120 mg/dl)"
             st.session_state.wiz_restecg = "Normal (0)"
             st.session_state.wiz_thalach = 185
             st.session_state.wiz_exang = "No"
@@ -320,7 +319,7 @@ if st.session_state.current_workspace == "🧙‍♂️ Patient Intake Wizard & 
             st.rerun()
 
     with p3:
-        if st.button("🟠 Moderate Risk Profile", use_container_width=True):
+        if st.button("Moderate Risk Profile", use_container_width=True):
             st.session_state.wiz_age = 58
             st.session_state.wiz_sex = "Male"
             st.session_state.wiz_cp = "Atypical Angina (2)"
@@ -337,13 +336,13 @@ if st.session_state.current_workspace == "🧙‍♂️ Patient Intake Wizard & 
             st.rerun()
 
     with p4:
-        if st.button("🔄 Reset Form Defaults", use_container_width=True):
+        if st.button("Reset Form Defaults", use_container_width=True):
             st.session_state.wiz_age = 52
             st.session_state.wiz_sex = "Male"
             st.session_state.wiz_cp = "Atypical Angina (2)"
             st.session_state.wiz_trestbps = 130
             st.session_state.wiz_chol = 240
-            st.session_state.wiz_fbs = "No (≤ 120 mg/dl)"
+            st.session_state.wiz_fbs = "No (<= 120 mg/dl)"
             st.session_state.wiz_restecg = "Normal (0)"
             st.session_state.wiz_thalach = 150
             st.session_state.wiz_exang = "No"
@@ -367,7 +366,7 @@ if st.session_state.current_workspace == "🧙‍♂️ Patient Intake Wizard & 
                 trestbps = st.number_input("Resting Blood Pressure (mm Hg)", 70, 240, st.session_state.get('wiz_trestbps', 130), help="Resting BP measured upon admission")
             with c2:
                 chol = st.number_input("Serum Cholesterol (mg/dl)", 100, 650, st.session_state.get('wiz_chol', 240), help="Total serum cholesterol level")
-                fbs = st.selectbox("Fasting Blood Sugar > 120 mg/dl", ["No (≤ 120 mg/dl)", "Yes (> 120 mg/dl)"], index=0 if "No" in st.session_state.get('wiz_fbs', 'No') else 1, help="Fasting blood sugar indicator for glucose tolerance")
+                fbs = st.selectbox("Fasting Blood Sugar > 120 mg/dl", ["No (<= 120 mg/dl)", "Yes (> 120 mg/dl)"], index=0 if "No" in st.session_state.get('wiz_fbs', 'No') else 1, help="Fasting blood sugar indicator for glucose tolerance")
 
         with w_tab2:
             c1, c2 = st.columns(2)
@@ -391,7 +390,7 @@ if st.session_state.current_workspace == "🧙‍♂️ Patient Intake Wizard & 
                 thal_opts = ["Normal (3)", "Fixed Defect (6)", "Reversible Defect (7)"]
                 thal = st.selectbox("Thalassemia Blood Status", thal_opts, index=0, help="Nuclear stress scan thalassemia status")
 
-        wiz_submit = st.form_submit_button("⚡ Run Multi-Model Diagnostic Assessment & XAI Analysis", use_container_width=True, type="primary")
+        wiz_submit = st.form_submit_button("Execute Multi-Model Diagnostic Assessment & XAI Analysis", use_container_width=True, type="primary")
 
     if wiz_submit:
         features_dict = {
@@ -425,7 +424,7 @@ if st.session_state.current_workspace == "🧙‍♂️ Patient Intake Wizard & 
         })
 
         st.markdown("---")
-        st.markdown(f"### 📊 Diagnostic Assessment Report ({active_m})")
+        st.markdown(f"### Diagnostic Assessment Report ({active_m})")
 
         if prob >= 70:
             b_class, b_title, b_color = "risk-banner-danger", "HIGH RISK FOR CARDIAC DISEASE", "#f43f5e"
@@ -448,21 +447,21 @@ if st.session_state.current_workspace == "🧙‍♂️ Patient Intake Wizard & 
             """, unsafe_allow_html=True)
 
             st.markdown("<br>", unsafe_allow_html=True)
-            st.markdown("#### 💡 Clinical Action Plan")
+            st.markdown("#### Clinical Action Plan")
 
             recs = []
             if prob >= 50:
-                recs.append("🚨 **Cardiology Referral**: Urgent referral for coronary angiography / nuclear stress test.")
+                recs.append("Cardiology Referral: Urgent referral for coronary angiography / nuclear stress test.")
             if chol > 240:
-                recs.append(f"💊 **Lipid Control**: Serum cholesterol ({chol} mg/dl) is elevated (>240 mg/dl). Evaluate statins.")
+                recs.append(f"Lipid Control: Serum cholesterol ({chol} mg/dl) is elevated (>240 mg/dl). Evaluate statins.")
             if trestbps > 130:
-                recs.append(f"🩸 **BP Monitoring**: Resting BP ({trestbps} mm Hg) is elevated. Recommend ambulatory BP tracking.")
+                recs.append(f"BP Monitoring: Resting BP ({trestbps} mm Hg) is elevated. Recommend ambulatory BP tracking.")
             if oldpeak > 1.0:
-                recs.append(f"📉 **Ischemia Evaluation**: Exercise ST depression ({oldpeak} mm) indicates exertion-induced ischemia.")
+                recs.append(f"Ischemia Evaluation: Exercise ST depression ({oldpeak} mm) indicates exertion-induced ischemia.")
             if exang == "Yes":
-                recs.append("🏃 **Angina Protocol**: Chest pain triggered by exertion indicates restricted coronary blood flow.")
+                recs.append("Angina Protocol: Chest pain triggered by exertion indicates restricted coronary blood flow.")
             if len(recs) == 0:
-                recs.append("✅ **Normal Vitals**: Patient parameters are within normal reference ranges.")
+                recs.append("Normal Vitals: Patient parameters are within normal reference ranges.")
 
             for r in recs:
                 st.markdown(f'<div class="rec-card-box">{r}</div>', unsafe_allow_html=True)
@@ -489,10 +488,9 @@ if st.session_state.current_workspace == "🧙‍♂️ Patient Intake Wizard & 
 
         # Explainable AI (XAI) Risk Waterfall Chart
         st.markdown("---")
-        st.markdown("### 🔍 Explainable AI (XAI): Risk Contribution Waterfall")
+        st.markdown("### Explainable AI (XAI): Risk Contribution Waterfall")
         st.markdown("This XAI Waterfall chart decomposes the prediction to show exactly how each clinical parameter pushed the risk score up (+) or down (-) relative to the baseline.")
 
-        # Compute z-scores & risk pushes
         means = scaler.mean_
         stds = scaler.scale_
         vals = list(features_dict.values())
@@ -532,16 +530,80 @@ if st.session_state.current_workspace == "🧙‍♂️ Patient Intake Wizard & 
         )
         st.plotly_chart(fig_waterfall, use_container_width=True)
 
+        # Biometric Clinical Radar Chart
+        st.markdown("---")
+        st.markdown("### Patient Biometric Radar vs. Healthy Baseline")
+
+        norm_age = min(age / 100.0, 1.0)
+        norm_bp = min(trestbps / 200.0, 1.0)
+        norm_chol = min(chol / 400.0, 1.0)
+        norm_hr = min(thalach / 220.0, 1.0)
+        norm_op = min(oldpeak / 5.0, 1.0)
+        norm_ca = min(ca / 3.0, 1.0)
+
+        categories = ['Age', 'Resting BP', 'Cholesterol', 'Max Heart Rate', 'ST Depression', 'Major Vessels']
+
+        fig_radar = go.Figure()
+        fig_radar.add_trace(go.Scatterpolar(
+            r=[norm_age, norm_bp, norm_chol, norm_hr, norm_op, norm_ca],
+            theta=categories,
+            fill='toself',
+            name='Patient Profile',
+            line_color='#0284c7'
+        ))
+        fig_radar.add_trace(go.Scatterpolar(
+            r=[0.4, 0.5, 0.45, 0.75, 0.0, 0.0],
+            theta=categories,
+            fill='toself',
+            name='Healthy Reference Target',
+            line_color='#10b981'
+        ))
+        fig_radar.update_layout(
+            polar=dict(radialaxis=dict(visible=True, range=[0, 1])),
+            showlegend=True,
+            height=350,
+            margin=dict(l=40, r=40, t=20, b=20)
+        )
+        st.plotly_chart(fig_radar, use_container_width=True)
+
+        # Anatomical Risk Mapping Card
+        st.markdown("### Cardiac Anatomical Risk Mapping")
+        st.markdown(f"""
+        <div class="anatomical-card">
+            <h4 style="color:#38bdf8; margin:0 0 1rem 0;">Physiological & Anatomical Status</h4>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
+                <div style="background:rgba(255,255,255,0.05); padding:1rem; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+                    <div style="font-weight:700; color:#38bdf8;">Coronary Vessels (ca)</div>
+                    <div style="font-size:1.4rem; font-weight:800; margin:0.3rem 0;">{ca} / 3 Vessels</div>
+                    <div style="font-size:0.8rem; color:#94a3b8;">{'Significant Stenosis Detected' if ca > 0 else 'Clear Vessels'}</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.05); padding:1rem; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+                    <div style="font-weight:700; color:#38bdf8;">ST Segment Ischemia</div>
+                    <div style="font-size:1.4rem; font-weight:800; margin:0.3rem 0;">{oldpeak} mm</div>
+                    <div style="font-size:0.8rem; color:#94a3b8;">{'Exertional Myocardial Depression' if oldpeak > 1.0 else 'Normal ST Baseline'}</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.05); padding:1rem; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+                    <div style="font-weight:700; color:#38bdf8;">Myocardial Perfusion</div>
+                    <div style="font-size:1.4rem; font-weight:800; margin:0.3rem 0;">{thal}</div>
+                    <div style="font-size:0.8rem; color:#94a3b8;">{'Reversible Ischemic Defect' if thal == 'Reversible Defect (7)' else 'Normal Nuclear Scan'}</div>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
 # ---------------------------------------------------------
 # WORKSPACE 2: SIMULATOR & 10-YEAR PROGNOSIS
 # ---------------------------------------------------------
-elif st.session_state.current_workspace == "⚡ Clinical Simulator & 10-Yr Prognosis":
-    st.markdown("## ⚡ Clinical Simulator & 10-Year Cardiac Prognosis Trajectory")
+elif st.session_state.current_workspace == "Clinical Risk Simulator & 10-Yr Prognosis":
+    st.markdown("## Clinical Risk Simulator & 10-Year Cardiac Prognosis Trajectory")
+    st.markdown("""
+    Adjust patient vitals in real time to simulate how medical interventions (e.g., controlling blood pressure, lowering cholesterol, or improving exercise tolerance) immediately alter predicted cardiac risk.
+    """)
 
     sim_col1, sim_col2 = st.columns([1, 1.2])
 
     with sim_col1:
-        st.markdown("#### 🎛️ Interactive Vitals Controls")
+        st.markdown("#### Interactive Vitals Controls")
         sim_age = st.slider("Simulated Age", 20, 90, 60)
         sim_bp = st.slider("Resting Blood Pressure (mm Hg)", 90, 200, 150)
         sim_chol = st.slider("Serum Cholesterol (mg/dl)", 120, 450, 260)
@@ -570,7 +632,7 @@ elif st.session_state.current_workspace == "⚡ Clinical Simulator & 10-Yr Progn
         active_m = st.session_state.selected_model_name
         prob_sim, pred_sim = get_prediction(active_m, features_sim)
 
-        st.markdown("#### 📉 Live Simulation Risk Outcome")
+        st.markdown("#### Live Simulation Risk Outcome")
         sim_color = "#f43f5e" if prob_sim >= 70 else "#f59e0b" if prob_sim >= 35 else "#10b981"
         st.markdown(f"""
         <div class="glass-card" style="text-align:center; border-top: 8px solid {sim_color};">
@@ -584,13 +646,11 @@ elif st.session_state.current_workspace == "⚡ Clinical Simulator & 10-Yr Progn
 
     # 10-Year Risk Prognosis Timeline Projection
     st.markdown("---")
-    st.markdown("### 📈 10-Year Cardiac Risk Trajectory Projection")
+    st.markdown("### 10-Year Cardiac Risk Trajectory Projection")
     st.markdown("Projections comparing standard unmanaged risk vs. proactive medical intervention over 10 years.")
 
     years = np.array([0, 1, 3, 5, 7, 10])
-    # Unmanaged trajectory
     unmanaged_risk = np.clip(prob_sim + (years * 2.2), 0, 100)
-    # Managed trajectory
     managed_risk = np.clip(prob_sim - (years * 3.1), 5, 100)
 
     prog_df = pd.DataFrame({
@@ -613,14 +673,13 @@ elif st.session_state.current_workspace == "⚡ Clinical Simulator & 10-Yr Progn
 # ---------------------------------------------------------
 # WORKSPACE 3: 3D CARDIAC MESH & SOAP NOTE GENERATOR
 # ---------------------------------------------------------
-elif st.session_state.current_workspace == "🫀 3D Anatomical Mesh & SOAP Notes":
-    st.markdown("## 🫀 3D Anatomical Mesh & EHR SOAP Note Generator")
+elif st.session_state.current_workspace == "3D Anatomical Mesh & SOAP Notes":
+    st.markdown("## 3D Anatomical Mesh & EHR SOAP Note Generator")
 
     c_mesh1, c_mesh2 = st.columns([1.2, 1])
 
     with c_mesh1:
-        st.markdown("#### 🫀 Interactive 3D Parametric Cardiac Surface Model")
-        # Generate 3D cardioid/heart surface mesh
+        st.markdown("#### Interactive 3D Parametric Cardiac Surface Model")
         u = np.linspace(0, 2 * np.pi, 30)
         v = np.linspace(0, np.pi, 30)
         x = 16 * np.sin(v)[:, None] ** 3 * np.cos(u)[None, :]
@@ -637,7 +696,7 @@ elif st.session_state.current_workspace == "🫀 3D Anatomical Mesh & SOAP Notes
         st.plotly_chart(fig_3d, use_container_width=True)
 
     with c_mesh2:
-        st.markdown("#### 📝 Automated EHR SOAP Clinical Note Generator")
+        st.markdown("#### Automated EHR SOAP Clinical Note Generator")
         st.markdown("Click below to generate a formal physician SOAP note formatted for Epic / Cerner EHR copy-pasting.")
 
         soap_note = f"""MEDICAL CLINICAL SOAP NOTE
@@ -671,8 +730,8 @@ PLAN:
 # ---------------------------------------------------------
 # WORKSPACE 4: EHR BATCH CSV INTELLIGENCE SUITE
 # ---------------------------------------------------------
-elif st.session_state.current_workspace == "📂 EHR Batch CSV Intelligence Suite":
-    st.markdown("## 📂 EHR Batch CSV Intelligence Suite")
+elif st.session_state.current_workspace == "Batch EHR CSV Intelligence Suite":
+    st.markdown("## Batch EHR CSV Intelligence Suite")
     st.markdown("Upload any CSV dataset containing patient records to execute multi-model bulk risk assessments and export annotated clinical files.")
 
     up_file = st.file_uploader("Upload Patient Records CSV File", type=["csv"])
@@ -687,9 +746,9 @@ elif st.session_state.current_workspace == "📂 EHR Batch CSV Intelligence Suit
             missing = [c for c in req if c not in b_df.columns]
 
             if missing:
-                st.error(f"❌ Missing required CSV columns: {missing}")
+                st.error(f"Missing required CSV columns: {missing}")
             else:
-                if st.button("🚀 Process Batch Evaluation with Active Model", type="primary", use_container_width=True):
+                if st.button("Process Batch Evaluation with Active Model", type="primary", use_container_width=True):
                     active_m = st.session_state.selected_model_name
                     X_b = b_df[req]
                     X_b_scaled = scaler.transform(X_b)
@@ -702,7 +761,7 @@ elif st.session_state.current_workspace == "📂 EHR Batch CSV Intelligence Suit
                     b_df['Prediction'] = np.where(preds == 1, 'Heart Disease Present', 'No Disease Detected')
                     b_df['Risk_Category'] = np.where(probs >= 70, 'High Risk', np.where(probs >= 35, 'Moderate Risk', 'Low Risk'))
 
-                    st.markdown("### 📊 Batch Evaluation Summary")
+                    st.markdown("### Batch Evaluation Summary")
                     c1, c2, c3 = st.columns(3)
                     with c1:
                         st.metric("High Risk Patients", sum(probs >= 70), f"{sum(probs>=70)/len(b_df)*100:.1f}%")
@@ -724,7 +783,7 @@ elif st.session_state.current_workspace == "📂 EHR Batch CSV Intelligence Suit
                     st.dataframe(b_df, use_container_width=True)
 
                     st.download_button(
-                        label="📥 Export Annotated Batch Predictions (CSV)",
+                        label="Export Annotated Batch Predictions (CSV)",
                         data=b_df.to_csv(index=False).encode('utf-8'),
                         file_name=f"cardiac_batch_predictions_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
                         mime="text/csv",
@@ -736,12 +795,12 @@ elif st.session_state.current_workspace == "📂 EHR Batch CSV Intelligence Suit
 # ---------------------------------------------------------
 # WORKSPACE 5: ML MODEL WORKBENCH & COMPARISON
 # ---------------------------------------------------------
-elif st.session_state.current_workspace == "🔬 ML Model Workbench & Comparison":
-    st.markdown("## 🔬 ML Model Workbench & Comparative Analytics")
+elif st.session_state.current_workspace == "ML Model Workbench & Comparison":
+    st.markdown("## ML Model Workbench & Comparative Analytics")
 
     if metadata and 'models' in metadata:
         m_df = pd.DataFrame(metadata['models']).T.reset_index().rename(columns={'index': 'Model'})
-        st.markdown("#### 🏆 Performance Metrics Comparison across All 5 Models")
+        st.markdown("#### Performance Metrics Comparison across All 5 Models")
         
         st.dataframe(m_df[['Model', 'accuracy', 'roc_auc', 'precision', 'recall', 'f1_score']], use_container_width=True)
 
@@ -759,7 +818,7 @@ elif st.session_state.current_workspace == "🔬 ML Model Workbench & Comparison
             st.plotly_chart(fig_acc, use_container_width=True)
 
         with col_m2:
-            st.markdown("#### 🎯 Active Model Confusion Matrix")
+            st.markdown("#### Active Model Confusion Matrix")
             active_m = st.session_state.selected_model_name
             cm = metadata['models'][active_m]['confusion_matrix']
 
@@ -777,7 +836,7 @@ elif st.session_state.current_workspace == "🔬 ML Model Workbench & Comparison
 # WORKSPACE 6: CARDIAC KNOWLEDGE BASE & DATASET
 # ---------------------------------------------------------
 else:
-    st.markdown("## 📚 Cardiac Knowledge Base & Dataset Explorer")
+    st.markdown("## Cardiac Knowledge Base & Dataset Explorer")
 
     st.markdown("""
     <div class="glass-card">
@@ -800,7 +859,7 @@ else:
         st.metric("Features", "13", "Clinical Features")
 
     st.markdown("---")
-    st.markdown("#### 📖 Parameter Dictionary & Reference Thresholds")
+    st.markdown("#### Parameter Dictionary & Reference Thresholds")
 
     param_df = pd.DataFrame([
         {'Feature': 'age', 'Name': 'Age', 'Description': 'Patient age in years', 'Reference Range': '18 - 100 yrs'},
@@ -824,6 +883,6 @@ else:
 st.markdown("---")
 st.markdown("""
 <div style="text-align: center; color: #64748b; font-size: 0.85rem; padding: 1.5rem 0;">
-    HeartGuard AI Ultra v4.0 Release | Clinical Explainable AI & 3D Intelligence Suite | Developed by Om Srivastava
+    HeartGuard AI Ultra Release | Clinical Multi-Model Intelligence Suite | Developed by Om Srivastava
 </div>
 """, unsafe_allow_html=True)

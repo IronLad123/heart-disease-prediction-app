@@ -19,7 +19,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 def train_and_export():
-    print("🚀 Starting Multi-Model Training Engine...")
+    print("Starting Multi-Model Training Engine...")
 
     # Load UCI Cleveland dataset
     url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/processed.cleveland.data'
@@ -27,9 +27,9 @@ def train_and_export():
     
     try:
         df = pd.read_csv(url, names=column_names, na_values='?')
-        print("✅ Downloaded UCI Cleveland dataset.")
+        print("Downloaded UCI Cleveland dataset.")
     except Exception as e:
-        print(f"⚠️ Could not load from URL, trying local fallback: {e}")
+        print(f"Could not load from URL, trying local fallback: {e}")
         df = pd.read_csv('Heart Disease Data/processed.cleveland.data', names=column_names, na_values='?')
 
     # Clean dataset (drop NaNs and convert target to binary 0/1)
@@ -72,7 +72,7 @@ def train_and_export():
     model_files = {}
 
     for name, model in models.items():
-        print(f"⚙️ Training {name}...")
+        print(f"Training {name}...")
         model.fit(X_train_scaled, y_train)
         
         y_pred = model.predict(X_test_scaled)
@@ -118,7 +118,7 @@ def train_and_export():
 
     # Export scaler and backward-compatible model
     joblib.dump(scaler, 'scaler.pkl')
-    joblib.dump(models['Voting Ensemble'], 'heart_disease_knn_model.pkl')  # Backward compatibility
+    joblib.dump(models['Voting Ensemble'], 'heart_disease_knn_model.pkl')
 
     # Export metadata
     metadata = {
@@ -160,7 +160,7 @@ def train_and_export():
             'feature_importance': {'importance': {str(i): v for i, v in enumerate(results['Voting Ensemble']['feature_importance'].values())}}
         }, f, indent=2)
 
-    print("🎉 All 5 Models, Scaler, and Metadata Successfully Saved!")
+    print("All 5 Models, Scaler, and Metadata Successfully Saved!")
 
 if __name__ == '__main__':
     train_and_export()
